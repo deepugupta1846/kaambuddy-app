@@ -71,7 +71,7 @@ const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) 
         
         // In a real app, you'd use the Firebase user ID
         const userId = 'user_' + Date.now();
-        await createUserDocument(userId, userData);
+        // await createUserDocument(userId, userData);
         
         onVerificationSuccess(signupData);
       } else {

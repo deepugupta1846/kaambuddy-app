@@ -68,7 +68,7 @@ const AuthWrapper = () => {
       return (
         <SignupScreen
           onSignup={handleLogin}
-          onNavigateToLogin={handleNavigateToLogin}
+          onSwitchToLogin={handleNavigateToLogin}
           onNavigateToOTP={handleNavigateToOTP}
         />
       );
@@ -87,7 +87,7 @@ const AuthWrapper = () => {
           onGoToDashboard={handleGoToDashboard}
         />
       );
-           case 'dashboard':
+    case 'dashboard':
          return <Dashboard onLogout={handleLogout} userData={userData} />;
     default:
       return (
