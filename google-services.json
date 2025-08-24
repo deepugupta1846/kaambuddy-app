@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "326468072443",
+    "project_id": "kaambuddy-24353",
+    "storage_bucket": "kaambuddy-24353.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326468072443:android:97a86f1bf301d449dd515e",
+        "android_client_info": {
+          "package_name": "com.kaambuddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbmWARFNI8oxZdnCrcKuhIloqtO6XoKKQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:326468072443:android:c041e6bab535b9cedd515e",
+        "android_client_info": {
+          "package_name": "com.kaambuddy.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbmWARFNI8oxZdnCrcKuhIloqtO6XoKKQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
