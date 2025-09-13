@@ -10,7 +10,7 @@ import {
   Platform,
 } from 'react-native';
 import colors from '../theme/colors';
-import { confirmCode, createUserDocument } from '../config/firebase';
+import apiService from '../config/api';
 
 const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) => {
   const [otp, setOtp] = useState(['', '', '', '']);
@@ -53,33 +53,38 @@ const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) 
     setIsLoading(true);
 
     try {
-      // In a real app, you would have the confirmation object from the previous step
-      // For now, we'll simulate the verification
-      // const result = await confirmCode(confirmation, otpString);
+      // First, verify the OTP
+      console.log('Verifying OTP for phone:', signupData.phone);
+      const verifyResponse = await apiService.verifyOTP(signupData.phone, otpString);
       
-      // Simulate successful verification for demo
-      if (otpString.length === 4) {
-        // Create user document in Firestore
+      if (verifyResponse.success) {
+        console.log('OTP verified successfully:', verifyResponse.data);
+        
+        // Now register the user with the backend API after OTP verification
         const userData = {
           name: signupData.name,
           phone: signupData.phone,
           userType: signupData.userType,
           workCategory: signupData.workCategory,
           experience: signupData.experience,
-          loginMethod: 'phone', // Track that this is phone-based signup
+          loginMethod: 'phone',
         };
         
-        // In a real app, you'd use the Firebase user ID
-        const userId = 'user_' + Date.now();
-        // await createUserDocument(userId, userData);
+        console.log('Registering user with data:', userData);
+        const registerResponse = await apiService.register(userData);
         
-        onVerificationSuccess(signupData);
+        if (registerResponse.success) {
+          console.log('User registered successfully:', registerResponse.data);
+          onVerificationSuccess(registerResponse.data.user);
+        } else {
+          Alert.alert('Error', registerResponse.message || 'Failed to register user. Please try again.');
+        }
       } else {
-        Alert.alert('Error', 'Invalid OTP. Please try again.');
+        Alert.alert('Error', verifyResponse.message || 'Invalid OTP. Please try again.');
       }
     } catch (error) {
       console.error('OTP verification error:', error);
-      Alert.alert('Error', 'Failed to verify OTP. Please try again.');
+      Alert.alert('Error', error.message || 'Failed to verify OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -89,12 +94,18 @@ const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) 
     setIsLoading(true);
     
     try {
-      // Simulate API call to resend OTP
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setResendTimer(30);
-      Alert.alert('Success', 'OTP resent to your phone number');
+      // Send OTP using backend API
+      const result = await apiService.login(signupData.phone);
+      
+      if (result.success) {
+        setResendTimer(30);
+        Alert.alert('Success', 'OTP resent to your phone number');
+      } else {
+        Alert.alert('Error', result.message || 'Failed to resend OTP. Please try again.');
+      }
     } catch (error) {
-      Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+      console.error('Resend OTP error:', error);
+      Alert.alert('Error', error.message || 'Failed to resend OTP. Please try again.');
     } finally {
       setIsLoading(false);
     }

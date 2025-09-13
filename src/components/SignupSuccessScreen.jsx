@@ -7,6 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import colors from '../theme/colors';
+import { useAuth } from '../context/AuthContext';
 
 const SignupSuccessScreen = ({ userData, onGoToDashboard }) => {
   return (
@@ -25,11 +26,11 @@ const SignupSuccessScreen = ({ userData, onGoToDashboard }) => {
           <Text style={styles.userInfoTitle}>Account Details:</Text>
           <View style={styles.userInfoRow}>
             <Text style={styles.userInfoLabel}>Name:</Text>
-            <Text style={styles.userInfoValue}>{userData.name}</Text>
+            <Text style={styles.userInfoValue}>{userData.name || 'Not provided'}</Text>
           </View>
           <View style={styles.userInfoRow}>
             <Text style={styles.userInfoLabel}>Phone:</Text>
-            <Text style={styles.userInfoValue}>{userData.phone}</Text>
+            <Text style={styles.userInfoValue}>{userData.phone || 'Not provided'}</Text>
           </View>
           <View style={styles.userInfoRow}>
             <Text style={styles.userInfoLabel}>Account Type:</Text>
@@ -41,11 +42,11 @@ const SignupSuccessScreen = ({ userData, onGoToDashboard }) => {
             <>
               <View style={styles.userInfoRow}>
                 <Text style={styles.userInfoLabel}>Work Category:</Text>
-                <Text style={styles.userInfoValue}>{userData.workCategory}</Text>
+                <Text style={styles.userInfoValue}>{userData.workCategory || 'Not specified'}</Text>
               </View>
               <View style={styles.userInfoRow}>
                 <Text style={styles.userInfoLabel}>Experience:</Text>
-                <Text style={styles.userInfoValue}>{userData.experience}</Text>
+                <Text style={styles.userInfoValue}>{userData.experience || 'Not specified'}</Text>
               </View>
             </>
           )}
@@ -53,21 +54,15 @@ const SignupSuccessScreen = ({ userData, onGoToDashboard }) => {
 
         <View style={styles.messageContainer}>
           <Text style={styles.messageTitle}>
-            {userData.userType === 'customer' 
-              ? 'What\'s Next?' 
-              : 'Ready to Start?'
-            }
+            Account Created Successfully!
           </Text>
           <Text style={styles.messageText}>
-            {userData.userType === 'customer' 
-              ? 'Start exploring services and book skilled workers for your needs.'
-              : 'Your profile is now active. Start receiving job requests from customers.'
-            }
+            Your account has been created and verified. Please login with your phone number to access your dashboard and start using KaamBuddy.
           </Text>
         </View>
 
         <TouchableOpacity style={styles.dashboardButton} onPress={onGoToDashboard}>
-          <Text style={styles.dashboardButtonText}>Go to Dashboard</Text>
+          <Text style={styles.dashboardButtonText}>Login to Continue</Text>
         </TouchableOpacity>
       </View>
     </View>

@@ -1,19 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginScreen from './LoginScreen.jsx';
 import SignupScreen from './SignupScreen.jsx';
 import OTPVerificationScreen from './OTPVerificationScreen.jsx';
 import SignupSuccessScreen from './SignupSuccessScreen.jsx';
 import Dashboard from './dashboard/Dashboard.jsx';
+import { useAuth } from '../context/AuthContext';
 
 const AuthWrapper = () => {
-  const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'otp', 'success', 'dashboard'
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const [currentScreen, setCurrentScreen] = useState('login'); // 'login', 'signup', 'otp', 'success'
   const [signupData, setSignupData] = useState(null);
-  const [userData, setUserData] = useState(null);
 
-  const handleLogin = (userData) => {
-    setUserData(userData);
-    setCurrentScreen('dashboard');
-  };
+  // Check if user is authenticated and redirect to dashboard
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      setCurrentScreen('dashboard');
+    }
+  }, [isAuthenticated, user]);
+
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return null; // or a loading component
+  }
+
+  // If user is authenticated, show dashboard
+  if (isAuthenticated && user) {
+    return <Dashboard userData={user} />;
+  }
 
   const handleNavigateToSignup = () => {
     setCurrentScreen('signup');
@@ -29,16 +42,18 @@ const AuthWrapper = () => {
   };
 
   const handleOTPVerificationSuccess = (data) => {
-    setUserData(data);
     setCurrentScreen('success');
   };
 
   const handleGoToDashboard = () => {
-    setCurrentScreen('dashboard');
+    // After successful signup, redirect to login screen
+    // Clear any stored user data and signup data
+    setUserData(null);
+    setSignupData(null);
+    setCurrentScreen('login');
   };
 
   const handleLogout = () => {
-    setUserData(null);
     setSignupData(null);
     setCurrentScreen('login');
   };
@@ -60,14 +75,12 @@ const AuthWrapper = () => {
     case 'login':
       return (
         <LoginScreen
-          onLogin={handleLogin}
           onSwitchToSignup={handleNavigateToSignup}
         />
       );
     case 'signup':
       return (
         <SignupScreen
-          onSignup={handleLogin}
           onSwitchToLogin={handleNavigateToLogin}
           onNavigateToOTP={handleNavigateToOTP}
         />
@@ -83,16 +96,13 @@ const AuthWrapper = () => {
     case 'success':
       return (
         <SignupSuccessScreen
-          userData={userData}
+          userData={signupData}
           onGoToDashboard={handleGoToDashboard}
         />
       );
-    case 'dashboard':
-         return <Dashboard onLogout={handleLogout} userData={userData} />;
     default:
       return (
         <LoginScreen
-          onLogin={handleLogin}
           onSwitchToSignup={handleNavigateToSignup}
         />
       );

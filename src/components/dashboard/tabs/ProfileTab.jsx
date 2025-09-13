@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal } from 'react-native';
 import styles from './ProfileTab.styles';
 import colors from '../../../theme/colors';
-import { submitKYC, getKYCStatus } from '../../../config/firebase';
+import { useAuth } from '../../../context/AuthContext';
 import EditProfileScreen from '../../EditProfileScreen';
 import PrivacyPolicyModal from '../../PrivacyPolicyModal';
 import TermsOfServiceModal from '../../TermsOfServiceModal';
 
-const ProfileTab = ({ onLogout, userData }) => {
+const ProfileTab = ({ userData }) => {
+  const { user, updateProfile, logout } = useAuth();
   const [showKYC, setShowKYC] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTermsOfService, setShowTermsOfService] = useState(false);
-  const [currentUserData, setCurrentUserData] = useState(userData);
+  const [currentUserData, setCurrentUserData] = useState(user || userData);
 
   // Mock user data - in real app this would come from props or context
   const mockUserData = currentUserData || {
@@ -188,7 +189,7 @@ const ProfileTab = ({ onLogout, userData }) => {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton} onPress={onLogout}>
+              <TouchableOpacity style={styles.logoutButton} onPress={logout}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 

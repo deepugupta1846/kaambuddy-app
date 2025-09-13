@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import UserTypeToggle from '../components/UserTypeToggle';
 import StatsCards from '../components/StatsCards';
@@ -6,8 +6,26 @@ import ServiceCategories from '../components/ServiceCategories';
 import RecentBookings from '../components/RecentBookings';
 import RecentJobs from '../components/RecentJobs';
 import styles from './HomeTab.styles';
+import { useJobs } from '../../../context/JobContext';
+import { useBookings } from '../../../context/BookingContext';
+import { useAuth } from '../../../context/AuthContext';
 
 const HomeTab = ({ userType, setUserType }) => {
+  const { user } = useAuth();
+  const { listJobs, getUserJobs, jobs, userJobs, isLoading: jobsLoading } = useJobs();
+  const { getUserBookings, bookings, isLoading: bookingsLoading } = useBookings();
+
+  useEffect(() => {
+    // Load data based on user type
+    if (userType === 'customer') {
+      getUserJobs();
+      getUserBookings();
+    } else {
+      listJobs();
+      getUserBookings();
+    }
+  }, [userType]);
+
   return (
     <ScrollView style={styles.content}>
       <View style={styles.welcomeSection}>
@@ -26,24 +44,24 @@ const HomeTab = ({ userType, setUserType }) => {
         <>
           <StatsCards 
             stats={[
-              { number: '5', label: 'Active Bookings' },
-              { number: '12', label: 'Completed Jobs' },
+              { number: userJobs?.length?.toString() || '0', label: 'My Jobs' },
+              { number: bookings?.filter(b => b.status === 'completed').length?.toString() || '0', label: 'Completed Jobs' },
               { number: '₹2,500', label: 'Total Spent' }
             ]}
           />
           <ServiceCategories />
-          <RecentBookings />
+          <RecentBookings bookings={bookings} isLoading={bookingsLoading} />
         </>
       ) : (
         <>
           <StatsCards 
             stats={[
-              { number: '8', label: "Today's Jobs" },
-              { number: '₹1,200', label: "Today's Earnings" },
+              { number: jobs?.length?.toString() || '0', label: 'Available Jobs' },
+              { number: bookings?.filter(b => b.status === 'completed').length?.toString() || '0', label: 'Completed Jobs' },
               { number: '4.8', label: 'Rating' }
             ]}
           />
-          <RecentJobs />
+          <RecentJobs jobs={jobs} isLoading={jobsLoading} />
         </>
       )}
     </ScrollView>
@@ -51,5 +69,7 @@ const HomeTab = ({ userType, setUserType }) => {
 };
 
 export default HomeTab;
+
+
 
 

@@ -8,10 +8,13 @@ import ServicesTab from './tabs/ServicesTab';
 import EarningsTab from './tabs/EarningsTab';
 import ProfileTab from './tabs/ProfileTab';
 import styles from './Dashboard.styles';
+import { useAuth } from '../../context/AuthContext';
 
-const Dashboard = ({ onLogout, userData }) => {
+const Dashboard = ({ userData }) => {
+  const { user, logout } = useAuth();
+  const currentUserData = user || userData;
   const [activeTab, setActiveTab] = useState('home');
-  const [userType, setUserType] = useState(userData?.userType || 'customer'); // 'customer' or 'worker'
+  const [userType, setUserType] = useState(currentUserData?.userType || 'customer'); // 'customer' or 'worker'
 
   const renderContent = () => {
     switch (activeTab) {
@@ -23,8 +26,8 @@ const Dashboard = ({ onLogout, userData }) => {
         return <ServicesTab userType={userType} />;
       case 'earnings':
         return <EarningsTab />;
-             case 'profile':
-         return <ProfileTab onLogout={onLogout} userData={userData} />;
+                     case 'profile':
+          return <ProfileTab onLogout={logout} userData={currentUserData} />;
       default:
         return null;
     }

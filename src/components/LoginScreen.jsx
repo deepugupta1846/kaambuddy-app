@@ -11,14 +11,15 @@ import {
   Alert,
 } from 'react-native';
 import colors from '../theme/colors';
-import { signInWithPhoneNumber, confirmCode, createUserDocument } from '../config/firebase';
+import { useAuth } from '../context/AuthContext';
 
-const LoginScreen = ({ onLogin, onSwitchToSignup }) => {
+const LoginScreen = ({ onSwitchToSignup }) => {
+  const { login, verifyOTP, resendOTP, isLoading } = useAuth();
   const [phone, setPhone] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [phoneError, setPhoneError] = useState('');
   const [showOTP, setShowOTP] = useState(false);
-  const [confirmation, setConfirmation] = useState(null);
+  const [otp, setOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
 
   const validateForm = () => {
     let isValid = true;
@@ -46,30 +47,24 @@ const LoginScreen = ({ onLogin, onSwitchToSignup }) => {
       return;
     }
 
-    setIsLoading(true);
-
     try {
-      // Format phone number for Firebase (add +91 if not present)
+      // Format phone number (add +91 if not present)
       let formattedPhone = phone.trim();
       if (!formattedPhone.startsWith('+')) {
         formattedPhone = '+91' + formattedPhone;
       }
 
-      // Send OTP using Firebase
-      const result = await signInWithPhoneNumber(formattedPhone);
+      // Send OTP using backend API
+      const result = await login(formattedPhone);
       
       if (result.success) {
-        // Store confirmation for OTP verification
-        setConfirmation(result.confirmation);
         setShowOTP(true);
       } else {
-        setPhoneError(result.error || 'Failed to send OTP. Please try again.');
+        setPhoneError(result.message || 'Failed to send OTP. Please try again.');
       }
     } catch (error) {
       console.error('Phone login error:', error);
-      setPhoneError('Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      setPhoneError(error.message || 'Login failed. Please try again.');
     }
   };
 
@@ -137,55 +132,41 @@ const LoginScreen = ({ onLogin, onSwitchToSignup }) => {
         return;
       }
 
-      setIsVerifying(true);
-
       try {
-        // Verify OTP with Firebase
-        const result = await confirmCode(confirmation, otpString);
+        // Format phone number
+        const formattedPhone = phone.trim().startsWith('+') ? phone.trim() : '+91' + phone.trim();
+        
+        // Verify OTP with backend API
+        const result = await verifyOTP(formattedPhone, otpString);
         
         if (result.success) {
-          // Create user document in Firestore
-          const userData = {
-            name: 'Phone User',
-            phone: phone.trim().startsWith('+') ? phone.trim() : '+91' + phone.trim(),
-            userType: 'customer',
-            loginMethod: 'phone'
-          };
-          
-          const userId = result.user.uid || 'user_' + Date.now();
-          await createUserDocument(userId, userData);
-          
-          onLogin({ ...userData, id: userId });
+          // Login successful - AuthContext will handle the rest
+          Alert.alert('Success', 'Login successful!');
         } else {
-          Alert.alert('Error', 'Invalid OTP. Please try again.');
+          Alert.alert('Error', result.message || 'Invalid OTP. Please try again.');
         }
       } catch (error) {
         console.error('OTP verification error:', error);
-        Alert.alert('Error', 'Failed to verify OTP. Please try again.');
-      } finally {
-        setIsVerifying(false);
+        Alert.alert('Error', error.message || 'Failed to verify OTP. Please try again.');
       }
     };
 
     const handleResendOTP = async () => {
-      setIsVerifying(true);
-      
       try {
-        // Resend OTP
+        // Format phone number
         const formattedPhone = phone.trim().startsWith('+') ? phone.trim() : '+91' + phone.trim();
-        const result = await signInWithPhoneNumber(formattedPhone);
+        
+        // Resend OTP using backend API
+        const result = await resendOTP(formattedPhone);
         
         if (result.success) {
-          setConfirmation(result.confirmation);
           setResendTimer(30);
           Alert.alert('Success', 'OTP resent to your phone number');
         } else {
-          Alert.alert('Error', 'Failed to resend OTP. Please try again.');
+          Alert.alert('Error', result.message || 'Failed to resend OTP. Please try again.');
         }
       } catch (error) {
-        Alert.alert('Error', 'Failed to resend OTP. Please try again.');
-      } finally {
-        setIsVerifying(false);
+        Alert.alert('Error', error.message || 'Failed to resend OTP. Please try again.');
       }
     };
 

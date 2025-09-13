@@ -12,6 +12,7 @@ import {
   Modal,
 } from 'react-native';
 import colors from '../theme/colors';
+import apiService from '../config/api';
 
 const SignupScreen = ({ onSignup, onSwitchToLogin, onNavigateToOTP }) => {
   const [fullName, setFullName] = useState('');
@@ -23,7 +24,7 @@ const SignupScreen = ({ onSignup, onSwitchToLogin, onNavigateToOTP }) => {
   const [showWorkCategoryModal, setShowWorkCategoryModal] = useState(false);
   const [showExperienceModal, setShowExperienceModal] = useState(false);
 
-  const handleSendOTP = () => {
+  const handleSendOTP = async () => {
     if (!fullName.trim()) {
       Alert.alert('Error', 'Please enter your full name');
       return;
@@ -36,7 +37,6 @@ const SignupScreen = ({ onSignup, onSwitchToLogin, onNavigateToOTP }) => {
 
     // Validate worker-specific fields
     if (userType === 'worker') {
-      debugger
       if (!workCategory.trim()) {
         Alert.alert('Error', 'Please select your work category');
         return;
@@ -49,23 +49,39 @@ const SignupScreen = ({ onSignup, onSwitchToLogin, onNavigateToOTP }) => {
     
     setIsLoading(true);
     
-    // Prepare signup data
-    const signupData = {
-      name: fullName.trim(),
-      phone: phoneNumber,
-      userType: userType,
-      workCategory: userType === 'worker' ? workCategory : '',
-      experience: userType === 'worker' ? experience : '',
-    };
-    
-    // Simulate API call for sending OTP
-    setTimeout(() => {
-      setIsLoading(false);
-      // Navigate to OTP verification screen with signup data
-      if (onNavigateToOTP) {
-        onNavigateToOTP(signupData);
+    try {
+      // Format phone number (add +91 if not present)
+      let formattedPhone = phoneNumber.trim();
+      if (!formattedPhone.startsWith('+')) {
+        formattedPhone = '+91' + formattedPhone;
       }
-    }, 1000);
+      
+      // Send OTP using backend API
+      const result = await apiService.login(formattedPhone);
+      
+      if (result.success) {
+        // Prepare signup data
+        const signupData = {
+          name: fullName.trim(),
+          phone: formattedPhone,
+          userType: userType,
+          workCategory: userType === 'worker' ? workCategory : '',
+          experience: userType === 'worker' ? experience : '',
+        };
+        
+        // Navigate to OTP verification screen with signup data
+        if (onNavigateToOTP) {
+          onNavigateToOTP(signupData);
+        }
+      } else {
+        Alert.alert('Error', result.message || 'Failed to send OTP. Please try again.');
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      Alert.alert('Error', error.message || 'Failed to send OTP. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const workCategories = [

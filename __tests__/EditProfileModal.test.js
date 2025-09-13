@@ -130,3 +130,5 @@ describe('EditProfile Modal', () => {
     expect(getByText('phone.user@example.com')).toBeTruthy();
   });
 });
+
+

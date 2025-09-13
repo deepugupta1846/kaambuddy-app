@@ -157,3 +157,5 @@ describe('Legal Modals', () => {
     expect(queryByTestId('terms-of-service-modal')).toBeNull();
   });
 });
+
+
