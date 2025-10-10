@@ -5,10 +5,12 @@ import BottomNavigation from './BottomNavigation';
 import HomeTab from './tabs/HomeTab';
 import BookingsTab from './tabs/BookingsTab';
 import ServicesTab from './tabs/ServicesTab';
+import ChatTab from './tabs/ChatTab';
 import EarningsTab from './tabs/EarningsTab';
 import ProfileTab from './tabs/ProfileTab';
 import styles from './Dashboard.styles';
 import { useAuth } from '../../context/AuthContext';
+import { ChatProvider } from '../../context/ChatContext';
 
 const Dashboard = ({ userData }) => {
   const { user, logout } = useAuth();
@@ -24,27 +26,31 @@ const Dashboard = ({ userData }) => {
         return <BookingsTab userType={userType} />;
       case 'services':
         return <ServicesTab userType={userType} />;
+      case 'chat':
+        return <ChatTab />;
       case 'earnings':
         return <EarningsTab />;
-                     case 'profile':
-          return <ProfileTab onLogout={logout} userData={currentUserData} />;
+      case 'profile':
+        return <ProfileTab onLogout={logout} userData={currentUserData} />;
       default:
         return null;
     }
   };
 
   return (
-    <View style={styles.container}>
-      <StatusBar backgroundColor="#fdd017" barStyle="light-content" translucent={true} />
-      
-      <TopBar />
-      {renderContent()}
-      <BottomNavigation 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        userType={userType} 
-      />
-    </View>
+    <ChatProvider>
+      <View style={styles.container}>
+        <StatusBar backgroundColor="#fdd017" barStyle="light-content" translucent={true} />
+        
+        <TopBar />
+        {renderContent()}
+        <BottomNavigation 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab} 
+          userType={userType} 
+        />
+      </View>
+    </ChatProvider>
   );
 };
 

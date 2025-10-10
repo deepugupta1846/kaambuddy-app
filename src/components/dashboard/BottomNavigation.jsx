@@ -34,6 +34,14 @@ const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
       </TouchableOpacity>
       
       <TouchableOpacity 
+        style={[styles.bottomTab, activeTab === 'chat' && styles.activeTab]} 
+        onPress={() => setActiveTab('chat')}
+      >
+        <Text style={[styles.bottomTabIcon, activeTab === 'chat' && styles.activeTabIcon]}>💬</Text>
+        <Text style={[styles.bottomTabText, activeTab === 'chat' && styles.activeTabText]}>Chat</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity 
         style={[styles.bottomTab, activeTab === 'earnings' && styles.activeTab]} 
         onPress={() => setActiveTab('earnings')}
       >
@@ -53,6 +61,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
 };
 
 export default BottomNavigation;
+
 
 
 

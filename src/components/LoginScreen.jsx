@@ -53,7 +53,7 @@ const LoginScreen = ({ onSwitchToSignup }) => {
       if (!formattedPhone.startsWith('+')) {
         formattedPhone = '+91' + formattedPhone;
       }
-
+      debugger
       // Send OTP using backend API
       const result = await login(formattedPhone);
       
