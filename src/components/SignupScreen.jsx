@@ -56,11 +56,9 @@ const SignupScreen = ({ onSignup, onSwitchToLogin, onNavigateToOTP }) => {
         formattedPhone = '+91' + formattedPhone;
       }
       
-      // Send OTP using backend API
-      const result = await apiService.login(formattedPhone);
+      const result = await apiService.sendOtp(formattedPhone);
       
       if (result.success) {
-        // Prepare signup data
         const signupData = {
           name: fullName.trim(),
           phone: formattedPhone,

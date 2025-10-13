@@ -19,9 +19,9 @@ const AuthWrapper = () => {
   }, [isAuthenticated, user]);
 
   // Show loading screen while checking authentication
-  if (isLoading) {
-    return null; // or a loading component
-  }
+  // if (isLoading) {
+  //   return null; // or a loading component
+  // }
 
   // If user is authenticated, show dashboard
   if (isAuthenticated && user) {
@@ -46,10 +46,6 @@ const AuthWrapper = () => {
   };
 
   const handleGoToDashboard = () => {
-    // After successful signup, redirect to login screen
-    // Clear any stored user data and signup data
-    setUserData(null);
-    setSignupData(null);
     setCurrentScreen('login');
   };
 
@@ -104,6 +100,10 @@ const AuthWrapper = () => {
       return (
         <LoginScreen
           onSwitchToSignup={handleNavigateToSignup}
+          onLoginSuccess={(userData) => {
+            // save user in Auth context if needed
+            setCurrentScreen('dashboard');
+          }}
         />
       );
   }

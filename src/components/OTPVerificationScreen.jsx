@@ -95,7 +95,7 @@ const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) 
     
     try {
       // Send OTP using backend API
-      const result = await apiService.login(signupData.phone);
+      const result = await apiService.sendOtp(signupData.phone);
       
       if (result.success) {
         setResendTimer(30);

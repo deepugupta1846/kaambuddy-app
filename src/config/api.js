@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // API Configuration
 const API_CONFIG = {
-  BASE_URL: __DEV__ ? 'http://localhost:3000/api' : 'https://your-production-domain.com/api',
+  BASE_URL: __DEV__ ? 'http://10.0.2.2:3000/api' : 'https://your-production-domain.com/api',
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
 };
@@ -195,8 +195,8 @@ class ApiService {
     return response;
   }
 
-  async resendOTP(phoneNumber) {
-    return this.request('/auth/resend-otp', {
+  async sendOtp(phoneNumber) {
+    return this.request('/auth/send-otp', {
       method: 'POST',
       body: { phone: phoneNumber },
     });

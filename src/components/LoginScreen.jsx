@@ -14,12 +14,12 @@ import colors from '../theme/colors';
 import { useAuth } from '../context/AuthContext';
 
 const LoginScreen = ({ onSwitchToSignup }) => {
-  const { login, verifyOTP, resendOTP, isLoading } = useAuth();
+  const { login, verifyOTP, resendOTP } = useAuth();
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [showOTP, setShowOTP] = useState(false);
-  const [otp, setOtp] = useState('');
-  const [otpError, setOtpError] = useState('');
+  const [isLoading, seisLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
 
   const validateForm = () => {
     let isValid = true;
@@ -53,11 +53,12 @@ const LoginScreen = ({ onSwitchToSignup }) => {
       if (!formattedPhone.startsWith('+')) {
         formattedPhone = '+91' + formattedPhone;
       }
-      debugger
-      // Send OTP using backend API
+      seisLoading(true);
       const result = await login(formattedPhone);
       
       if (result.success) {
+        setUserData(result.data.user);
+        seisLoading(false);
         setShowOTP(true);
       } else {
         setPhoneError(result.message || 'Failed to send OTP. Please try again.');
@@ -69,7 +70,7 @@ const LoginScreen = ({ onSwitchToSignup }) => {
   };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
+    seisLoading(true);
 
     try {
       // Simulate Google login
@@ -89,7 +90,7 @@ const LoginScreen = ({ onSwitchToSignup }) => {
     } catch (error) {
       setPhoneError('Google login failed. Please try again.');
     } finally {
-      setIsLoading(false);
+      seisLoading(false);
     }
   };
 
@@ -227,7 +228,7 @@ const LoginScreen = ({ onSwitchToSignup }) => {
       </View>
     );
   };
-
+  
   if (showOTP) {
     return (
       <KeyboardAvoidingView 
