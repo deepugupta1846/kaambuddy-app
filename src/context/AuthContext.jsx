@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
   const resendOTP = async (phoneNumber) => {
     try {
       setIsLoading(true);
-      const response = await apiService.resendOTP(phoneNumber);
+      const response = await apiService.sendOtp(phoneNumber);
       return response;
     } catch (error) {
       throw error;

@@ -18,7 +18,7 @@ const LoginScreen = ({ onSwitchToSignup }) => {
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [showOTP, setShowOTP] = useState(false);
-  const [isLoading, seisLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [userData, setUserData] = useState(null);
 
   const validateForm = () => {
@@ -53,24 +53,30 @@ const LoginScreen = ({ onSwitchToSignup }) => {
       if (!formattedPhone.startsWith('+')) {
         formattedPhone = '+91' + formattedPhone;
       }
-      seisLoading(true);
+      
+      console.log('Attempting login with phone:', formattedPhone);
+      setIsLoading(true);
       const result = await login(formattedPhone);
+      
+      console.log('Login result:', result);
       
       if (result.success) {
         setUserData(result.data.user);
-        seisLoading(false);
+        setIsLoading(false);
         setShowOTP(true);
       } else {
+        setIsLoading(false);
         setPhoneError(result.message || 'Failed to send OTP. Please try again.');
       }
     } catch (error) {
       console.error('Phone login error:', error);
+      setIsLoading(false);
       setPhoneError(error.message || 'Login failed. Please try again.');
     }
   };
 
   const handleGoogleLogin = async () => {
-    seisLoading(true);
+    setIsLoading(true);
 
     try {
       // Simulate Google login
@@ -86,11 +92,12 @@ const LoginScreen = ({ onSwitchToSignup }) => {
         loginMethod: 'google'
       };
 
-      onLogin(userData);
+      // TODO: Implement Google OAuth integration
+      Alert.alert('Google Login', 'Google login will be implemented with OAuth integration');
     } catch (error) {
       setPhoneError('Google login failed. Please try again.');
     } finally {
-      seisLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -134,21 +141,30 @@ const LoginScreen = ({ onSwitchToSignup }) => {
       }
 
       try {
+        setIsVerifying(true);
         // Format phone number
         const formattedPhone = phone.trim().startsWith('+') ? phone.trim() : '+91' + phone.trim();
+        
+        console.log('Verifying OTP for phone:', formattedPhone, 'OTP:', otpString);
         
         // Verify OTP with backend API
         const result = await verifyOTP(formattedPhone, otpString);
         
+        console.log('OTP verification result:', result);
+        
         if (result.success) {
+          console.log('OTP verification successful, user will be redirected to dashboard');
           // Login successful - AuthContext will handle the rest
-          Alert.alert('Success', 'Login successful!');
+          // The AuthContext will automatically update the authentication state
+          // No need to show alert as the app will navigate to dashboard
         } else {
           Alert.alert('Error', result.message || 'Invalid OTP. Please try again.');
         }
       } catch (error) {
         console.error('OTP verification error:', error);
         Alert.alert('Error', error.message || 'Failed to verify OTP. Please try again.');
+      } finally {
+        setIsVerifying(false);
       }
     };
 
