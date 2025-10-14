@@ -3,59 +3,48 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import styles from './BottomNavigation.styles';
 
 const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
+  console.log('BottomNavigation: Rendering for user type:', userType);
+  
+  // Define tabs based on user type
+  const getTabsForUserType = () => {
+    if (userType === 'customer') {
+      return [
+        { key: 'home', icon: '🏠', label: 'Home' },
+        { key: 'bookings', icon: '📋', label: 'Bookings' },
+        { key: 'services', icon: '🛠️', label: 'Services' },
+        { key: 'chat', icon: '💬', label: 'Chat' },
+        { key: 'profile', icon: '👤', label: 'Profile' }
+      ];
+    } else {
+      // Worker tabs
+      return [
+        { key: 'home', icon: '🏠', label: 'Home' },
+        { key: 'bookings', icon: '🔧', label: 'Jobs' },
+        { key: 'earnings', icon: '💰', label: 'Earnings' },
+        { key: 'chat', icon: '💬', label: 'Chat' },
+        { key: 'profile', icon: '👤', label: 'Profile' }
+      ];
+    }
+  };
+
+  const tabs = getTabsForUserType();
+
   return (
     <View style={styles.bottomBar}>
-      <TouchableOpacity 
-        style={[styles.bottomTab, activeTab === 'home' && styles.activeTab]} 
-        onPress={() => setActiveTab('home')}
-      >
-        <Text style={[styles.bottomTabIcon, activeTab === 'home' && styles.activeTabIcon]}>🏠</Text>
-        <Text style={[styles.bottomTabText, activeTab === 'home' && styles.activeTabText]}>Home</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={[styles.bottomTab, activeTab === 'bookings' && styles.activeTab]} 
-        onPress={() => setActiveTab('bookings')}
-      >
-        <Text style={[styles.bottomTabIcon, activeTab === 'bookings' && styles.activeTabIcon]}>
-          {userType === 'customer' ? '📋' : '🔧'}
-        </Text>
-        <Text style={[styles.bottomTabText, activeTab === 'bookings' && styles.activeTabText]}>
-          {userType === 'customer' ? 'Bookings' : 'Jobs'}
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={[styles.bottomTab, activeTab === 'services' && styles.activeTab]} 
-        onPress={() => setActiveTab('services')}
-      >
-        <Text style={[styles.bottomTabIcon, activeTab === 'services' && styles.activeTabIcon]}>🛠️</Text>
-        <Text style={[styles.bottomTabText, activeTab === 'services' && styles.activeTabText]}>Services</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={[styles.bottomTab, activeTab === 'chat' && styles.activeTab]} 
-        onPress={() => setActiveTab('chat')}
-      >
-        <Text style={[styles.bottomTabIcon, activeTab === 'chat' && styles.activeTabIcon]}>💬</Text>
-        <Text style={[styles.bottomTabText, activeTab === 'chat' && styles.activeTabText]}>Chat</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={[styles.bottomTab, activeTab === 'earnings' && styles.activeTab]} 
-        onPress={() => setActiveTab('earnings')}
-      >
-        <Text style={[styles.bottomTabIcon, activeTab === 'earnings' && styles.activeTabIcon]}>💰</Text>
-        <Text style={[styles.bottomTabText, activeTab === 'earnings' && styles.activeTabText]}>Earnings</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity 
-        style={[styles.bottomTab, activeTab === 'profile' && styles.activeTab]} 
-        onPress={() => setActiveTab('profile')}
-      >
-        <Text style={[styles.bottomTabIcon, activeTab === 'profile' && styles.activeTabIcon]}>👤</Text>
-        <Text style={[styles.bottomTabText, activeTab === 'profile' && styles.activeTabText]}>Profile</Text>
-      </TouchableOpacity>
+      {tabs.map((tab) => (
+        <TouchableOpacity 
+          key={tab.key}
+          style={[styles.bottomTab, activeTab === tab.key && styles.activeTab]} 
+          onPress={() => setActiveTab(tab.key)}
+        >
+          <Text style={[styles.bottomTabIcon, activeTab === tab.key && styles.activeTabIcon]}>
+            {tab.icon}
+          </Text>
+          <Text style={[styles.bottomTabText, activeTab === tab.key && styles.activeTabText]}>
+            {tab.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
     </View>
   );
 };
