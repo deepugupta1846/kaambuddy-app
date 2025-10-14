@@ -4,10 +4,8 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Animated,
 } from 'react-native';
 import colors from '../theme/colors';
-import { useAuth } from '../context/AuthContext';
 
 const SignupSuccessScreen = ({ userData, onGoToDashboard }) => {
   return (
@@ -57,12 +55,12 @@ const SignupSuccessScreen = ({ userData, onGoToDashboard }) => {
             Account Created Successfully!
           </Text>
           <Text style={styles.messageText}>
-            Your account has been created and verified. Please login with your phone number to access your dashboard and start using KaamBuddy.
+            Your account has been created and verified. You are now logged in and ready to use KaamBuddy!
           </Text>
         </View>
 
         <TouchableOpacity style={styles.dashboardButton} onPress={onGoToDashboard}>
-          <Text style={styles.dashboardButtonText}>Login to Continue</Text>
+          <Text style={styles.dashboardButtonText}>Go to Dashboard</Text>
         </TouchableOpacity>
       </View>
     </View>

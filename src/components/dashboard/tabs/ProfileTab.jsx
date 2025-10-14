@@ -15,17 +15,31 @@ const ProfileTab = ({ userData }) => {
   const [showTermsOfService, setShowTermsOfService] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(user || userData);
 
-  // Mock user data - in real app this would come from props or context
-  const mockUserData = currentUserData || {
-    name: 'John Doe',
-    phone: '+91 98765 43210',
-    email: 'john.doe@example.com',
-    userType: 'worker',
-    workCategory: 'Plumber',
-    experience: '3-5 years',
-    kycStatus: 'pending', // 'pending', 'completed', 'rejected'
+  // Update currentUserData when user from AuthContext changes
+  useEffect(() => {
+    console.log('ProfileTab: User data changed:', user);
+    if (user) {
+      setCurrentUserData(user);
+    }
+  }, [user]);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('ProfileTab: Current user data:', currentUserData);
+    console.log('ProfileTab: Actual user data:', actualUserData);
+  }, [currentUserData, actualUserData]);
+
+  // Use actual user data from AuthContext, fallback to mock data if needed
+  const actualUserData = currentUserData || {
+    name: 'User',
+    phone: '+91 00000 00000',
+    email: 'user@example.com',
+    userType: 'customer',
+    workCategory: '',
+    experience: '',
+    kycStatus: 'pending',
     profileImage: null,
-    loginMethod: 'phone' // 'phone' or 'google', 'facebook', 'apple'
+    loginMethod: 'phone'
   };
 
   const getKYCStatusColor = (status) => {
@@ -50,20 +64,22 @@ const ProfileTab = ({ userData }) => {
     <ScrollView style={styles.content}>
       <View style={styles.profileHeader}>
         <View style={styles.profileImageContainer}>
-          {mockUserData.profileImage ? (
-            <Image source={{ uri: mockUserData.profileImage }} style={styles.profileImage} />
+          {actualUserData.profileImage ? (
+            <Image source={{ uri: actualUserData.profileImage }} style={styles.profileImage} />
           ) : (
             <View style={styles.profileImagePlaceholder}>
               <Text style={styles.profileImageText}>
-                {mockUserData.name.charAt(0).toUpperCase()}
+                {actualUserData.name && actualUserData.name.length > 0 
+                  ? actualUserData.name.charAt(0).toUpperCase() 
+                  : 'U'}
               </Text>
             </View>
           )}
         </View>
-        <Text style={styles.profileName}>{mockUserData.name}</Text>
-        <Text style={styles.profilePhone}>{mockUserData.phone}</Text>
+        <Text style={styles.profileName}>{actualUserData.name || 'User'}</Text>
+        <Text style={styles.profilePhone}>{actualUserData.phone || 'Not provided'}</Text>
         <Text style={styles.profileType}>
-          {mockUserData.userType === 'customer' ? '👤 Customer' : '🔧 Worker'}
+          {actualUserData.userType === 'customer' ? '👤 Customer' : '🔧 Worker'}
         </Text>
       </View>
 
@@ -72,44 +88,44 @@ const ProfileTab = ({ userData }) => {
         
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Full Name</Text>
-          <Text style={styles.infoValue}>{mockUserData.name}</Text>
+          <Text style={styles.infoValue}>{actualUserData.name || 'Not provided'}</Text>
         </View>
         
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Phone Number</Text>
-          <Text style={styles.infoValue}>{mockUserData.phone}</Text>
+          <Text style={styles.infoValue}>{actualUserData.phone || 'Not provided'}</Text>
         </View>
         
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Email Address</Text>
           <Text style={styles.infoValue}>
-            {mockUserData.email || 'Not provided'}
+            {actualUserData.email || 'Not provided'}
           </Text>
         </View>
         
         <View style={styles.infoRow}>
           <Text style={styles.infoLabel}>Account Type</Text>
           <Text style={styles.infoValue}>
-            {mockUserData.userType === 'customer' ? 'Customer' : 'Worker'}
+            {actualUserData.userType === 'customer' ? 'Customer' : 'Worker'}
           </Text>
         </View>
 
-        {mockUserData.userType === 'worker' && (
+        {actualUserData.userType === 'worker' && (
           <>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Work Category</Text>
-              <Text style={styles.infoValue}>{mockUserData.workCategory}</Text>
+              <Text style={styles.infoValue}>{actualUserData.workCategory || 'Not specified'}</Text>
             </View>
             
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Experience</Text>
-              <Text style={styles.infoValue}>{mockUserData.experience}</Text>
+              <Text style={styles.infoValue}>{actualUserData.experience || 'Not specified'}</Text>
             </View>
           </>
         )}
       </View>
 
-      {mockUserData.userType === 'worker' && (
+      {actualUserData.userType === 'worker' && (
         <View style={styles.kycSection}>
           <Text style={styles.sectionTitle}>KYC Verification</Text>
           <View style={styles.kycStatusContainer}>
@@ -117,13 +133,13 @@ const ProfileTab = ({ userData }) => {
               <Text style={styles.kycStatusLabel}>Verification Status:</Text>
               <Text style={[
                 styles.kycStatusText,
-                { color: getKYCStatusColor(mockUserData.kycStatus) }
+                { color: getKYCStatusColor(actualUserData.kycStatus) }
               ]}>
-                {getKYCStatusText(mockUserData.kycStatus)}
+                {getKYCStatusText(actualUserData.kycStatus)}
               </Text>
             </View>
             
-            {mockUserData.kycStatus === 'pending' && (
+            {actualUserData.kycStatus === 'pending' && (
               <TouchableOpacity 
                 style={styles.kycButton}
                 onPress={() => setShowKYC(true)}
@@ -132,7 +148,7 @@ const ProfileTab = ({ userData }) => {
               </TouchableOpacity>
             )}
             
-            {mockUserData.kycStatus === 'rejected' && (
+            {actualUserData.kycStatus === 'rejected' && (
               <TouchableOpacity 
                 style={styles.kycButton}
                 onPress={() => setShowKYC(true)}
@@ -141,7 +157,7 @@ const ProfileTab = ({ userData }) => {
               </TouchableOpacity>
             )}
             
-            {mockUserData.kycStatus === 'completed' && (
+            {actualUserData.kycStatus === 'completed' && (
               <View style={styles.kycCompleted}>
                 <Text style={styles.kycCompletedText}>✅ KYC verification completed</Text>
                 <Text style={styles.kycCompletedSubtext}>Your account is fully verified</Text>
@@ -196,7 +212,7 @@ const ProfileTab = ({ userData }) => {
       {/* KYC Modal would be rendered here */}
       {showKYC && (
         <KYCModal 
-          userData={mockUserData}
+          userData={actualUserData}
           onClose={() => setShowKYC(false)}
           onComplete={(kycData) => {
             console.log('KYC completed:', kycData);
@@ -213,7 +229,7 @@ const ProfileTab = ({ userData }) => {
         onRequestClose={() => setShowEditProfile(false)}
       >
         <EditProfileScreen
-          userData={mockUserData}
+          userData={actualUserData}
           onSave={(updatedData) => {
             setCurrentUserData(updatedData);
             setShowEditProfile(false);

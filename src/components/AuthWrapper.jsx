@@ -42,7 +42,9 @@ const AuthWrapper = () => {
   };
 
   const handleOTPVerificationSuccess = (data) => {
-    setCurrentScreen('success');
+    // User is now authenticated, AuthContext will handle navigation to dashboard
+    // We don't need to show success screen anymore since user is automatically logged in
+    console.log('OTP verification successful, user should be redirected to dashboard');
   };
 
   const handleGoToDashboard = () => {
@@ -89,13 +91,14 @@ const AuthWrapper = () => {
           onGoBack={handleGoBack}
         />
       );
-    case 'success':
-      return (
-        <SignupSuccessScreen
-          userData={signupData}
-          onGoToDashboard={handleGoToDashboard}
-        />
-      );
+    // case 'success':
+    //   return (
+    //     <SignupSuccessScreen
+    //       userData={signupData}
+    //       onGoToDashboard={handleGoToDashboard}
+    //     />
+    //   );
+    // Success screen is no longer needed as users are automatically logged in
     default:
       return (
         <LoginScreen

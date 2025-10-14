@@ -95,8 +95,22 @@ export const AuthProvider = ({ children }) => {
     try {
       setIsLoading(true);
       const response = await apiService.register(userData);
+      
+      console.log('Registration Response:', response);
+      
+      if (response.success) {
+        // Store token and user data
+        await apiService.setAuthToken(response.data.token);
+        await apiService.setUserData(response.data.user);
+        
+        console.log('Setting user data after registration:', response.data.user);
+        setUser(response.data.user);
+        setIsAuthenticated(true);
+      }
+      
       return response;
     } catch (error) {
+      console.error('Registration Error:', error);
       throw error;
     } finally {
       setIsLoading(false);

@@ -11,8 +11,10 @@ import {
 } from 'react-native';
 import colors from '../theme/colors';
 import apiService from '../config/api';
+import { useAuth } from '../context/AuthContext';
 
 const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) => {
+  const { register } = useAuth();
   const [otp, setOtp] = useState(['', '', '', '']);
   const [isLoading, setIsLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
@@ -53,12 +55,12 @@ const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) 
     setIsLoading(true);
 
     try {
-      // First, verify the OTP
-      console.log('Verifying OTP for phone:', signupData.phone);
-      const verifyResponse = await apiService.verifyOTP(signupData.phone, otpString);
+      // First, verify the OTP for signup (doesn't require user to exist)
+      console.log('Verifying OTP for signup, phone:', signupData.phone);
+      const verifyResponse = await apiService.verifyOTPForSignup(signupData.phone, otpString);
       
       if (verifyResponse.success) {
-        console.log('OTP verified successfully:', verifyResponse.data);
+        console.log('OTP verified successfully for signup:', verifyResponse.data);
         
         // Now register the user with the backend API after OTP verification
         const userData = {
@@ -71,11 +73,13 @@ const OTPVerificationScreen = ({ signupData, onVerificationSuccess, onGoBack }) 
         };
         
         console.log('Registering user with data:', userData);
-        const registerResponse = await apiService.register(userData);
+        const registerResponse = await register(userData);
         
         if (registerResponse.success) {
           console.log('User registered successfully:', registerResponse.data);
-          onVerificationSuccess(registerResponse.data.user);
+          // Registration successful - AuthContext will handle the rest
+          // The AuthContext will automatically update the authentication state
+          // User will be redirected to dashboard
         } else {
           Alert.alert('Error', registerResponse.message || 'Failed to register user. Please try again.');
         }

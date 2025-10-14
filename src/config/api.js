@@ -195,6 +195,16 @@ class ApiService {
     return response;
   }
 
+  async verifyOTPForSignup(phoneNumber, otp) {
+    console.log('API: Verifying OTP for signup, phone:', phoneNumber);
+    const response = await this.request('/auth/verify-otp-signup', {
+      method: 'POST',
+      body: { phone: phoneNumber, otp },
+    });
+    console.log('API: OTP signup verification response:', response);
+    return response;
+  }
+
   async sendOtp(phoneNumber) {
     return this.request('/auth/send-otp', {
       method: 'POST',
