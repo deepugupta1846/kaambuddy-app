@@ -15,11 +15,37 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [lastActivity, setLastActivity] = useState(Date.now());
 
   // Check if user is already logged in on app start
   useEffect(() => {
     checkAuthStatus();
   }, []);
+
+  // Session timeout management (24 hours)
+  useEffect(() => {
+    if (isAuthenticated) {
+      const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      
+      const checkSessionTimeout = () => {
+        const now = Date.now();
+        if (now - lastActivity > SESSION_TIMEOUT) {
+          console.log('Session timeout - logging out user');
+          logout();
+        }
+      };
+
+      // Check every 5 minutes
+      const interval = setInterval(checkSessionTimeout, 5 * 60 * 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isAuthenticated, lastActivity]);
+
+  // Update last activity on user interaction
+  const updateLastActivity = () => {
+    setLastActivity(Date.now());
+  };
 
   const checkAuthStatus = async () => {
     try {
@@ -27,15 +53,49 @@ export const AuthProvider = ({ children }) => {
       const token = await apiService.getAuthToken();
       
       if (token) {
-        // Verify token with backend
-        const userData = await apiService.getCurrentUser();
-        setUser(userData.data);
-        setIsAuthenticated(true);
+        try {
+          // First try to get user data from storage for faster loading
+          const storedUserData = await apiService.getUserData();
+          if (storedUserData) {
+            console.log('Loading user data from storage:', storedUserData);
+            setUser(storedUserData);
+            setIsAuthenticated(true);
+          }
+
+          // Then verify token with backend and update if needed
+          const userData = await apiService.getCurrentUser();
+          if (userData.success) {
+            console.log('Verified user data from backend:', userData.data);
+            setUser(userData.data);
+            setIsAuthenticated(true);
+            // Update stored user data with fresh data from backend
+            await apiService.setUserData(userData.data);
+          }
+        } catch (backendError) {
+          console.error('Backend verification failed:', backendError);
+          // If backend verification fails, still use stored data if available
+          if (storedUserData) {
+            console.log('Using stored user data due to backend error');
+            setUser(storedUserData);
+            setIsAuthenticated(true);
+          } else {
+            throw backendError;
+          }
+        }
+      } else {
+        // No token, check if there's stored user data to clear
+        const storedUserData = await apiService.getUserData();
+        if (storedUserData) {
+          console.log('No token but found stored user data, clearing...');
+          await apiService.logout();
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error);
-      // Clear invalid tokens
+      // Clear invalid tokens and user data
       await apiService.logout();
+      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +128,7 @@ export const AuthProvider = ({ children }) => {
         console.log('Setting user data:', response.data.user);
         setUser(response.data.user);
         setIsAuthenticated(true);
+        updateLastActivity();
       }
       
       return response;
@@ -106,6 +167,7 @@ export const AuthProvider = ({ children }) => {
         console.log('Setting user data after registration:', response.data.user);
         setUser(response.data.user);
         setIsAuthenticated(true);
+        updateLastActivity();
       }
       
       return response;
@@ -159,6 +221,39 @@ export const AuthProvider = ({ children }) => {
       }
     } catch (error) {
       console.error('Error refreshing user data:', error);
+      // Fallback to stored user data if backend fails
+      const storedUserData = await apiService.getUserData();
+      if (storedUserData) {
+        setUser(storedUserData);
+      }
+    }
+  };
+
+  // Get user data from storage (offline mode)
+  const getUserFromStorage = async () => {
+    try {
+      const storedUserData = await apiService.getUserData();
+      if (storedUserData) {
+        setUser(storedUserData);
+        setIsAuthenticated(true);
+        return storedUserData;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting user from storage:', error);
+      return null;
+    }
+  };
+
+  // Check if user data exists in storage
+  const hasStoredUserData = async () => {
+    try {
+      const token = await apiService.getAuthToken();
+      const userData = await apiService.getUserData();
+      return !!(token && userData);
+    } catch (error) {
+      console.error('Error checking stored user data:', error);
+      return false;
     }
   };
 
@@ -173,6 +268,9 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateProfile,
     refreshUserData,
+    getUserFromStorage,
+    hasStoredUserData,
+    updateLastActivity,
   };
 
   return (

@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import sessionStorage from '../utils/sessionStorage';
 
 // API Configuration
 const API_CONFIG = {
@@ -35,6 +36,11 @@ class ApiService {
   async setAuthToken(token) {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+      // Also update session storage
+      const userData = await this.getUserData();
+      if (userData && token) {
+        await sessionStorage.startUserSession(userData, token);
+      }
     } catch (error) {
       console.error('Error setting auth token:', error);
     }
@@ -64,6 +70,11 @@ class ApiService {
   async setUserData(userData) {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.USER_DATA, JSON.stringify(userData));
+      // Also update session storage
+      const token = await this.getAuthToken();
+      if (userData && token) {
+        await sessionStorage.startUserSession(userData, token);
+      }
     } catch (error) {
       console.error('Error setting user data:', error);
     }
@@ -224,6 +235,18 @@ class ApiService {
     return result;
   }
 
+  // Clear all session data
+  async logout() {
+    try {
+      await this.removeAuthToken();
+      await this.removeUserData();
+      await sessionStorage.clearSession();
+      console.log('All session data cleared');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
+  }
+
   // User API methods
   async getUserProfile(userId) {
     return this.request(`/users/${userId}`);
@@ -243,6 +266,27 @@ class ApiService {
 
   async getWorkerProfile(workerId) {
     return this.request(`/users/workers/${workerId}`);
+  }
+
+  // KYC methods
+  async submitKYC(kycData) {
+    debugger
+    console.log('API: Submitting KYC:', kycData);
+    const response = await this.request('/kyc/submit', {
+      method: 'POST',
+      body: kycData,
+    });
+    console.log('API: KYC submission response:', response);
+    return response;
+  }
+
+  async getKYCStatus() {
+    console.log('API: Getting KYC status');
+    const response = await this.request('/kyc/status', {
+      method: 'GET',
+    });
+    console.log('API: KYC status response:', response);
+    return response;
   }
 
   async updateFCMToken(token) {
@@ -371,6 +415,23 @@ class ApiService {
     return this.request('/notifications', {
       method: 'DELETE',
     });
+  }
+
+  // Session management methods
+  async getSessionInfo() {
+    return await sessionStorage.getSessionInfo();
+  }
+
+  async refreshSession() {
+    return await sessionStorage.refreshSession();
+  }
+
+  async isSessionExpired() {
+    return await sessionStorage.isSessionExpired();
+  }
+
+  async updateSessionActivity() {
+    return await sessionStorage.updateLastActivity();
   }
 
   // Health check endpoint

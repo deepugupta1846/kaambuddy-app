@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import styles from './ProfileTab.styles';
 import colors from '../../../theme/colors';
 import { useAuth } from '../../../context/AuthContext';
 import EditProfileScreen from '../../EditProfileScreen';
 import PrivacyPolicyModal from '../../PrivacyPolicyModal';
 import TermsOfServiceModal from '../../TermsOfServiceModal';
+import apiService from '../../../config/api';
 
 const ProfileTab = ({ userData }) => {
   const { user, updateProfile, logout } = useAuth();
@@ -14,6 +15,7 @@ const ProfileTab = ({ userData }) => {
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTermsOfService, setShowTermsOfService] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(user || userData);
+  const [kycStatus, setKycStatus] = useState(null);
 
   // Update currentUserData when user from AuthContext changes
   useEffect(() => {
@@ -23,11 +25,30 @@ const ProfileTab = ({ userData }) => {
     }
   }, [user]);
 
+  // Check KYC status for workers
+  useEffect(() => {
+    const checkKYCStatus = async () => {
+      if (user?.userType === 'worker') {
+        try {
+          const response = await apiService.getKYCStatus();
+          if (response.success) {
+            setKycStatus(response.data.kyc);
+          }
+        } catch (error) {
+          console.error('Failed to fetch KYC status:', error);
+        }
+      }
+    };
+
+    checkKYCStatus();
+  }, [user]);
+
   // Debug logging
   useEffect(() => {
     console.log('ProfileTab: Current user data:', currentUserData);
     console.log('ProfileTab: Actual user data:', actualUserData);
-  }, [currentUserData, actualUserData]);
+    console.log('ProfileTab: KYC status:', kycStatus);
+  }, [currentUserData, actualUserData, kycStatus]);
 
   // Use actual user data from AuthContext, fallback to mock data if needed
   const actualUserData = currentUserData || {
@@ -133,13 +154,13 @@ const ProfileTab = ({ userData }) => {
               <Text style={styles.kycStatusLabel}>Verification Status:</Text>
               <Text style={[
                 styles.kycStatusText,
-                { color: getKYCStatusColor(actualUserData.kycStatus) }
+                { color: getKYCStatusColor(kycStatus?.status || 'not_started') }
               ]}>
-                {getKYCStatusText(actualUserData.kycStatus)}
+                {getKYCStatusText(kycStatus?.status || 'not_started')}
               </Text>
             </View>
             
-            {actualUserData.kycStatus === 'pending' && (
+            {(!kycStatus || kycStatus.status === 'not_started') && (
               <TouchableOpacity 
                 style={styles.kycButton}
                 onPress={() => setShowKYC(true)}
@@ -148,16 +169,30 @@ const ProfileTab = ({ userData }) => {
               </TouchableOpacity>
             )}
             
-            {actualUserData.kycStatus === 'rejected' && (
-              <TouchableOpacity 
-                style={styles.kycButton}
-                onPress={() => setShowKYC(true)}
-              >
-                <Text style={styles.kycButtonText}>Update KYC</Text>
-              </TouchableOpacity>
+            {kycStatus?.status === 'pending' && (
+              <View style={styles.kycCompleted}>
+                <Text style={styles.kycCompletedText}>⏳ KYC verification pending</Text>
+                <Text style={styles.kycCompletedSubtext}>Your documents are under review</Text>
+              </View>
             )}
             
-            {actualUserData.kycStatus === 'completed' && (
+            {kycStatus?.status === 'rejected' && (
+              <View>
+                <TouchableOpacity 
+                  style={styles.kycButton}
+                  onPress={() => setShowKYC(true)}
+                >
+                  <Text style={styles.kycButtonText}>Update KYC</Text>
+                </TouchableOpacity>
+                {kycStatus.rejectionReason && (
+                  <Text style={styles.kycRejectionText}>
+                    Reason: {kycStatus.rejectionReason}
+                  </Text>
+                )}
+              </View>
+            )}
+            
+            {kycStatus?.status === 'approved' && (
               <View style={styles.kycCompleted}>
                 <Text style={styles.kycCompletedText}>✅ KYC verification completed</Text>
                 <Text style={styles.kycCompletedSubtext}>Your account is fully verified</Text>
@@ -209,13 +244,22 @@ const ProfileTab = ({ userData }) => {
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
-      {/* KYC Modal would be rendered here */}
+      {/* KYC Modal */}
       {showKYC && (
         <KYCModal 
           userData={actualUserData}
           onClose={() => setShowKYC(false)}
-          onComplete={(kycData) => {
+          onComplete={async (kycData) => {
             console.log('KYC completed:', kycData);
+            // Refresh KYC status from backend
+            try {
+              const response = await apiService.getKYCStatus();
+              if (response.success) {
+                setKycStatus(response.data.kyc);
+              }
+            } catch (error) {
+              console.error('Failed to refresh KYC status:', error);
+            }
             setShowKYC(false);
           }}
         />
@@ -255,67 +299,87 @@ const ProfileTab = ({ userData }) => {
 
 // KYC Modal Component
 const KYCModal = ({ userData, onClose, onComplete }) => {
-  const [address, setAddress] = useState('');
+  const [fullName, setFullName] = useState(userData?.name || '');
   const [aadharNumber, setAadharNumber] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!address.trim() || !aadharNumber.trim()) {
+    if (!fullName.trim() || !aadharNumber.trim() || !address.trim() || !city.trim() || !state.trim() || !pincode.trim()) {
       return;
     }
 
     setIsSubmitting(true);
     
     try {
-      // Submit KYC to Firebase
+      // Submit KYC to backend API
       const kycData = {
-        address: address.trim(),
+        fullName: fullName.trim(),
         aadharNumber: aadharNumber.trim(),
-        userId: userData.id || 'user_' + Date.now(),
+        address: address.trim(),
+        city: city.trim(),
+        state: state.trim(),
+        pincode: pincode.trim()
+        // TODO: Add image upload functionality for aadhar images and selfie
+        // Image fields will be added when upload functionality is implemented
       };
       
-      const result = await submitKYC(kycData.userId, kycData);
+      const result = await apiService.submitKYC(kycData);
       
       if (result.success) {
         onComplete({
-          address: address.trim(),
-          aadharNumber: aadharNumber.trim(),
-          status: 'pending'
+          status: 'pending',
+          submittedAt: new Date()
         });
       } else {
-        console.error('KYC submission failed:', result.error);
+        console.error('KYC submission failed:', result.message);
+        // Show specific error message to user
+        Alert.alert('KYC Submission Failed', result.message || 'Please check your information and try again.');
       }
     } catch (error) {
       console.error('KYC submission failed:', error);
+      // Show error message to user
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to submit KYC. Please try again.';
+      Alert.alert('Error', errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <View style={styles.modalOverlay}>
-      <View style={styles.modalContent}>
-        <View style={styles.modalHeader}>
-          <Text style={styles.modalTitle}>KYC Verification</Text>
-          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>✕</Text>
+    <Modal
+      visible={true}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView 
+        style={styles.fullPageModalContainer}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <View style={styles.fullPageModalHeader}>
+          <TouchableOpacity onPress={onClose} style={styles.fullPageCloseButton}>
+            <Text style={styles.fullPageCloseButtonText}>✕</Text>
           </TouchableOpacity>
+          <Text style={styles.fullPageModalTitle}>KYC Verification</Text>
+          <View style={styles.fullPageHeaderSpacer} />
         </View>
         
-        <ScrollView style={styles.modalBody}>
+        <ScrollView style={styles.fullPageModalBody} showsVerticalScrollIndicator={false}>
           <Text style={styles.kycDescription}>
-            Please provide your complete address and Aadhar card number for verification.
+            Please provide your complete KYC details for verification. This is required for worker verification.
           </Text>
           
           <View style={styles.kycInputContainer}>
-            <Text style={styles.kycInputLabel}>Full Address</Text>
+            <Text style={styles.kycInputLabel}>Full Name</Text>
             <TextInput
               style={styles.kycInput}
-              placeholder="Enter your complete address"
-              value={address}
-              onChangeText={setAddress}
-              multiline
-              numberOfLines={3}
+              placeholder="Enter your full name"
+              value={fullName}
+              onChangeText={setFullName}
               placeholderTextColor={colors.textSecondary}
             />
           </View>
@@ -333,26 +397,74 @@ const KYCModal = ({ userData, onClose, onComplete }) => {
             />
           </View>
           
+          <View style={styles.kycInputContainer}>
+            <Text style={styles.kycInputLabel}>Complete Address</Text>
+            <TextInput
+              style={styles.kycInput}
+              placeholder="Enter your complete address"
+              value={address}
+              onChangeText={setAddress}
+              multiline
+              numberOfLines={3}
+              placeholderTextColor={colors.textSecondary}
+            />
+          </View>
+          
+          <View style={styles.kycInputContainer}>
+            <Text style={styles.kycInputLabel}>City</Text>
+            <TextInput
+              style={styles.kycInput}
+              placeholder="Enter your city"
+              value={city}
+              onChangeText={setCity}
+              placeholderTextColor={colors.textSecondary}
+            />
+          </View>
+          
+          <View style={styles.kycInputContainer}>
+            <Text style={styles.kycInputLabel}>State</Text>
+            <TextInput
+              style={styles.kycInput}
+              placeholder="Enter your state"
+              value={state}
+              onChangeText={setState}
+              placeholderTextColor={colors.textSecondary}
+            />
+          </View>
+          
+          <View style={styles.kycInputContainer}>
+            <Text style={styles.kycInputLabel}>Pincode</Text>
+            <TextInput
+              style={styles.kycInput}
+              placeholder="Enter 6-digit pincode"
+              value={pincode}
+              onChangeText={setPincode}
+              keyboardType="numeric"
+              maxLength={6}
+              placeholderTextColor={colors.textSecondary}
+            />
+          </View>
+          
           <View style={styles.kycNote}>
             <Text style={styles.kycNoteText}>
-              📝 Note: Your Aadhar number will be encrypted and used only for verification purposes.
+              📝 Note: Your Aadhar number will be encrypted and used only for verification purposes. Image upload functionality will be added in the next update.
             </Text>
           </View>
         </ScrollView>
         
-        <View style={styles.modalFooter}>
+        <View style={styles.fullPageModalFooter}>
           <TouchableOpacity 
-            style={[styles.kycSubmitButton, isSubmitting && styles.disabledButton]}
+            style={[styles.fullPageSubmitButton, isSubmitting && styles.disabledButton]}
             onPress={handleSubmit}
             disabled={isSubmitting}
           >
-            <Text style={styles.kycSubmitButtonText}>
+            <Text style={styles.fullPageSubmitButtonText}>
               {isSubmitting ? 'Submitting...' : 'Submit KYC'}
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </View>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 };
 
