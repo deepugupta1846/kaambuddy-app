@@ -203,3 +203,5 @@ class SessionStorage {
 // Create singleton instance
 const sessionStorage = new SessionStorage();
 export default sessionStorage;
+
+

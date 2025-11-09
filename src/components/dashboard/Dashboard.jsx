@@ -8,6 +8,7 @@ import ServicesTab from './tabs/ServicesTab';
 import ChatTab from './tabs/ChatTab';
 import EarningsTab from './tabs/EarningsTab';
 import ProfileTab from './tabs/ProfileTab';
+import SettingsScreen from './SettingsScreen';
 import styles from './Dashboard.styles';
 import { useAuth } from '../../context/AuthContext';
 import { ChatProvider } from '../../context/ChatContext';
@@ -16,6 +17,7 @@ const Dashboard = ({ userData }) => {
   const { user, logout } = useAuth();
   const currentUserData = user || userData;
   const [activeTab, setActiveTab] = useState('home');
+  const [showSettings, setShowSettings] = useState(false);
   
   // Get user type from logged-in user data (no longer toggleable)
   const userType = currentUserData?.userType || 'customer';
@@ -27,6 +29,19 @@ const Dashboard = ({ userData }) => {
   useEffect(() => {
     setActiveTab('home');
   }, [userType]);
+
+  const handleSettingsPress = () => {
+    setShowSettings(true);
+  };
+
+  const handleNotificationPress = () => {
+    // TODO: Handle notification press
+    console.log('Notification pressed');
+  };
+
+  const handleCloseSettings = () => {
+    setShowSettings(false);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -52,12 +67,21 @@ const Dashboard = ({ userData }) => {
       <View style={styles.container}>
         <StatusBar backgroundColor="#fdd017" barStyle="light-content" translucent={true} />
         
-        <TopBar />
+        <TopBar 
+          onSettingsPress={handleSettingsPress}
+          onNotificationPress={handleNotificationPress}
+        />
         {renderContent()}
         <BottomNavigation 
           activeTab={activeTab} 
           setActiveTab={setActiveTab} 
           userType={userType} 
+        />
+        
+        {/* Settings Screen */}
+        <SettingsScreen 
+          visible={showSettings}
+          onClose={handleCloseSettings}
         />
       </View>
     </ChatProvider>

@@ -21,9 +21,10 @@ export const BookingProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.applyForJob(jobId, applicationData);
-      
+      debugger
       if (response.success) {
         // Add new booking to list
+        debugger
         setBookings(prev => [response.data, ...prev]);
         return response;
       }
@@ -44,8 +45,8 @@ export const BookingProvider = ({ children }) => {
       const response = await apiService.getUserBookings();
       
       if (response.success) {
-        setBookings(response.data);
-        return response.data;
+        setBookings(response?.data?.bookings);
+        return response?.data?.bookings;
       }
       
       throw new Error(response.message || 'Failed to fetch bookings');
@@ -214,5 +215,7 @@ export const BookingProvider = ({ children }) => {
     </BookingContext.Provider>
   );
 };
+
+
 
 

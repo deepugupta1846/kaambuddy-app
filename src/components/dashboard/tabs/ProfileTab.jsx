@@ -202,6 +202,7 @@ const ProfileTab = ({ userData }) => {
         </View>
       )}
 
+
       <View style={styles.settingsSection}>
         <Text style={styles.sectionTitle}>Settings</Text>
         
@@ -293,6 +294,7 @@ const ProfileTab = ({ userData }) => {
         visible={showTermsOfService}
         onClose={() => setShowTermsOfService(false)}
       />
+
     </ScrollView>
   );
 };

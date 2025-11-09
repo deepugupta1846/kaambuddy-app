@@ -434,6 +434,58 @@ class ApiService {
     return await sessionStorage.updateLastActivity();
   }
 
+  // Pricing API methods
+  async getPricingInfo() {
+    console.log('API: Getting pricing info');
+    const response = await this.request('/pricing/info');
+    console.log('API: Pricing info response:', response);
+    return response;
+  }
+
+  async getMyPricing(workCategory = null) {
+    console.log('API: Getting my pricing');
+    const queryParams = workCategory ? `?workCategory=${workCategory}` : '';
+    const response = await this.request(`/pricing/my-pricing${queryParams}`);
+    console.log('API: My pricing response:', response);
+    return response;
+  }
+
+  async setWorkerPricing(pricingData) {
+    console.log('API: Setting worker pricing:', pricingData);
+    const response = await this.request('/pricing/set', {
+      method: 'POST',
+      body: pricingData,
+    });
+    console.log('API: Set pricing response:', response);
+    return response;
+  }
+
+  async getWorkerPricing(workerId, workCategory = null) {
+    console.log('API: Getting worker pricing for:', workerId);
+    const queryParams = workCategory ? `?workCategory=${workCategory}` : '';
+    const response = await this.request(`/pricing/worker/${workerId}${queryParams}`);
+    console.log('API: Worker pricing response:', response);
+    return response;
+  }
+
+  async getPricingByCategory(workCategory, filters = {}) {
+    console.log('API: Getting pricing by category:', workCategory);
+    const queryParams = new URLSearchParams(filters).toString();
+    const url = queryParams ? `/pricing/category/${workCategory}?${queryParams}` : `/pricing/category/${workCategory}`;
+    const response = await this.request(url);
+    console.log('API: Category pricing response:', response);
+    return response;
+  }
+
+  async deleteWorkerPricing(pricingId) {
+    console.log('API: Deleting worker pricing:', pricingId);
+    const response = await this.request(`/pricing/${pricingId}`, {
+      method: 'DELETE',
+    });
+    console.log('API: Delete pricing response:', response);
+    return response;
+  }
+
   // Health check endpoint
   async healthCheck() {
     try {

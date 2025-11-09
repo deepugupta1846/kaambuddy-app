@@ -52,7 +52,15 @@ export default StyleSheet.create({
   confirmedStatus: {
     backgroundColor: colors.info,
   },
+  noBookingsText: {
+    textAlign: 'center',
+    paddingVertical: 20,
+    color: '#777',
+    fontSize: 14,
+  },
 });
+
+
 
 
 
