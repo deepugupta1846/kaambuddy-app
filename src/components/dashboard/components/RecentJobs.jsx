@@ -2,30 +2,30 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import styles from './RecentJobs.styles';
 
-const RecentJobs = () => {
-  const jobs = [
-    {
-      title: 'Kitchen Sink Repair',
-      customer: 'Mrs. Gupta',
-      time: '2:00 PM - 4:00 PM',
-      payment: '₹500',
-      status: 'pending'
-    },
-    {
-      title: 'Bathroom Cleaning',
-      customer: 'Mr. Singh',
-      time: '10:00 AM - 11:30 AM',
-      payment: '₹400',
-      status: 'completed'
-    },
-    {
-      title: 'Wall Painting',
-      customer: 'Ms. Reddy',
-      time: '9:00 AM - 12:00 PM',
-      payment: '₹800',
-      status: 'inProgress'
-    }
-  ];
+const RecentJobs = ({jobs}) => {
+  // const jobs = [
+  //   {
+  //     title: 'Kitchen Sink Repair',
+  //     customer: 'Mrs. Gupta',
+  //     time: '2:00 PM - 4:00 PM',
+  //     payment: '₹500',
+  //     status: 'pending'
+  //   },
+  //   {
+  //     title: 'Bathroom Cleaning',
+  //     customer: 'Mr. Singh',
+  //     time: '10:00 AM - 11:30 AM',
+  //     payment: '₹400',
+  //     status: 'completed'
+  //   },
+  //   {
+  //     title: 'Wall Painting',
+  //     customer: 'Ms. Reddy',
+  //     time: '9:00 AM - 12:00 PM',
+  //     payment: '₹800',
+  //     status: 'inProgress'
+  //   }
+  // ];
 
   return (
     <View style={styles.recentJobs}>

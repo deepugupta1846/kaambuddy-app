@@ -22,7 +22,7 @@ export const JobProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.createJob(jobData);
-      
+        
       if (response.success) {
         // Add new job to user jobs list
         setUserJobs(prev => [response.data, ...prev]);
@@ -43,10 +43,9 @@ export const JobProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.listJobs(filters);
-      
       if (response.success) {
-        setJobs(response.data);
-        return response.data;
+        setJobs(response.data?.jobs || []);
+        return response.data?.jobs ;
       }
       
       throw new Error(response.message || 'Failed to fetch jobs');
@@ -63,10 +62,9 @@ export const JobProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.getUserJobs();
-      
       if (response.success) {
-        setUserJobs(response.data);
-        return response.data;
+        setUserJobs(response.data?.jobs || []);
+        return response.data?.jobs;
       }
       
       throw new Error(response.message || 'Failed to fetch user jobs');
@@ -83,9 +81,8 @@ export const JobProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.getJob(jobId);
-      
       if (response.success) {
-        return response.data;
+        return response.data?.jobs;
       }
       
       throw new Error(response.message || 'Failed to fetch job');
@@ -102,7 +99,7 @@ export const JobProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.updateJob(jobId, jobData);
-      
+      debugger
       if (response.success) {
         // Update job in both lists
         setJobs(prev => prev.map(job => job.id === jobId ? response.data : job));
@@ -124,7 +121,7 @@ export const JobProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.cancelJob(jobId);
-      
+      debugger
       if (response.success) {
         // Remove job from both lists
         setJobs(prev => prev.filter(job => job.id !== jobId));

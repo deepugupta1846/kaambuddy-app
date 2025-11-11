@@ -21,10 +21,8 @@ export const BookingProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.applyForJob(jobId, applicationData);
-      debugger
       if (response.success) {
         // Add new booking to list
-        debugger
         setBookings(prev => [response.data, ...prev]);
         return response;
       }
