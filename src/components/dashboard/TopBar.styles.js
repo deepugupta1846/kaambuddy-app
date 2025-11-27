@@ -23,6 +23,25 @@ export default StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textLight,
+    marginBottom: 4,
+  },
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  locationIcon: {
+    fontSize: 12,
+    marginRight: 4,
+  },
+  locationLoader: {
+    marginRight: 4,
+  },
+  locationText: {
+    fontSize: 12,
+    color: colors.textLight,
+    opacity: 0.9,
+    maxWidth: 200,
   },
   topBarRight: {
     flexDirection: 'row',
@@ -36,6 +55,7 @@ export default StyleSheet.create({
     fontSize: 20,
   },
 });
+
 
 
 

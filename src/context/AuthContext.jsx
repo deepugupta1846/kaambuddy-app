@@ -26,7 +26,6 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     if (isAuthenticated) {
       const SESSION_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-      
       const checkSessionTimeout = () => {
         const now = Date.now();
         if (now - lastActivity > SESSION_TIMEOUT) {
@@ -64,22 +63,28 @@ export const AuthProvider = ({ children }) => {
 
           // Then verify token with backend and update if needed
           const userData = await apiService.getCurrentUser();
-          if (userData.success) {
+          if (userData.success && userData.data) {
             console.log('Verified user data from backend:', userData.data);
-            setUser(userData.data);
+            // Handle both response formats: { data: user } or { data: { user: ... } }
+            const user = userData.data.user || userData.data;
+            setUser(user);
             setIsAuthenticated(true);
             // Update stored user data with fresh data from backend
-            await apiService.setUserData(userData.data);
+            await apiService.setUserData(user);
           }
         } catch (backendError) {
           console.error('Backend verification failed:', backendError);
           // If backend verification fails, still use stored data if available
+          const storedUserData = await apiService.getUserData();
           if (storedUserData) {
             console.log('Using stored user data due to backend error');
             setUser(storedUserData);
             setIsAuthenticated(true);
           } else {
-            throw backendError;
+            // No stored data and backend failed - clear everything
+            await apiService.logout();
+            setUser(null);
+            setIsAuthenticated(false);
           }
         }
       } else {
@@ -215,9 +220,11 @@ export const AuthProvider = ({ children }) => {
   const refreshUserData = async () => {
     try {
       const userData = await apiService.getCurrentUser();
-      if (userData.success) {
-        setUser(userData.data);
-        await apiService.setUserData(userData.data);
+      if (userData.success && userData.data) {
+        // Handle both response formats: { data: user } or { data: { user: ... } }
+        const user = userData.data.user || userData.data;
+        setUser(user);
+        await apiService.setUserData(user);
       }
     } catch (error) {
       console.error('Error refreshing user data:', error);

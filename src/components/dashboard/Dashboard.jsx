@@ -12,6 +12,7 @@ import SettingsScreen from './SettingsScreen';
 import styles from './Dashboard.styles';
 import { useAuth } from '../../context/AuthContext';
 import { ChatProvider } from '../../context/ChatContext';
+import permissionService from '../../utils/permissions';
 
 const Dashboard = ({ userData }) => {
   const { user, logout } = useAuth();
@@ -29,6 +30,24 @@ const Dashboard = ({ userData }) => {
   useEffect(() => {
     setActiveTab('home');
   }, [userType]);
+
+  // Request permissions when dashboard loads
+  useEffect(() => {
+    const requestPermissions = async () => {
+      try {
+        await permissionService.requestAllPermissions();
+      } catch (error) {
+        console.error('Error requesting permissions:', error);
+      }
+    };
+
+    // Request permissions after a short delay to allow UI to render
+    const timer = setTimeout(() => {
+      requestPermissions();
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSettingsPress = () => {
     setShowSettings(true);

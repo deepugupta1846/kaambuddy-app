@@ -15,6 +15,7 @@ import { AuthProvider } from './src/context/AuthContext';
 import { JobProvider } from './src/context/JobContext';
 import { BookingProvider } from './src/context/BookingContext';
 import { NotificationProvider } from './src/context/NotificationContext';
+import { LocationProvider } from './src/context/LocationContext';
 
 function App() {
   const [isSplashVisible, setIsSplashVisible] = useState(true);
@@ -32,6 +33,7 @@ function App() {
         translucent={true}
       />
       <AuthProvider>
+        <LocationProvider>
         <JobProvider>
           <BookingProvider>
             <NotificationProvider>
@@ -43,6 +45,7 @@ function App() {
             </NotificationProvider>
           </BookingProvider>
         </JobProvider>
+        </LocationProvider>
       </AuthProvider>
     </SafeAreaProvider>
   );

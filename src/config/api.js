@@ -3,7 +3,7 @@ import sessionStorage from '../utils/sessionStorage';
 
 // API Configuration
 const API_CONFIG = {
-  BASE_URL: __DEV__ ? 'http://10.0.2.2:3000/api' : 'https://your-production-domain.com/api',
+  BASE_URL: 'https://kaambuddy-backend-app.onrender.com/api',
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
 };
