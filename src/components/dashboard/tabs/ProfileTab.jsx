@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image, TextInput, Modal, Alert, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './ProfileTab.styles';
 import colors from '../../../theme/colors';
 import { useAuth } from '../../../context/AuthContext';
@@ -9,13 +11,14 @@ import TermsOfServiceModal from '../../TermsOfServiceModal';
 import apiService from '../../../config/api';
 
 const ProfileTab = ({ userData }) => {
-  const { user, updateProfile, logout } = useAuth();
+  const { user, updateProfile, logout, refreshUserData } = useAuth();
   const [showKYC, setShowKYC] = useState(false);
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showTermsOfService, setShowTermsOfService] = useState(false);
   const [currentUserData, setCurrentUserData] = useState(user || userData);
   const [kycStatus, setKycStatus] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Update currentUserData when user from AuthContext changes
   useEffect(() => {
@@ -81,10 +84,99 @@ const ProfileTab = ({ userData }) => {
     }
   };
 
+  const showImagePickerOptions = () => {
+    Alert.alert(
+      'Select Profile Photo',
+      'Choose an option',
+      [
+        { text: 'Camera', onPress: () => openCamera() },
+        { text: 'Photo Library', onPress: () => openImageLibrary() },
+        { text: 'Cancel', style: 'cancel' },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const openCamera = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 0.8,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    };
+
+    launchCamera(options, (response) => {
+      if (response.didCancel) {
+        return;
+      }
+      if (response.errorMessage) {
+        Alert.alert('Error', response.errorMessage);
+        return;
+      }
+      if (response.assets && response.assets[0]) {
+        uploadProfileImage(response.assets[0].uri || '');
+      }
+    });
+  };
+
+  const openImageLibrary = () => {
+    const options = {
+      mediaType: 'photo',
+      quality: 0.8,
+      maxWidth: 1024,
+      maxHeight: 1024,
+    };
+
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        return;
+      }
+      if (response.errorMessage) {
+        Alert.alert('Error', response.errorMessage);
+        return;
+      }
+      if (response.assets && response.assets[0]) {
+        uploadProfileImage(response.assets[0].uri || '');
+      }
+    });
+  };
+
+  const uploadProfileImage = async (imageUri) => {
+    if (!imageUri) return;
+
+    setIsUploadingImage(true);
+    try {
+      const response = await apiService.uploadProfileImage(imageUri);
+      
+      if (response.success && response.data) {
+        const updatedUser = response.data.user || response.data;
+        setCurrentUserData(updatedUser);
+        // Update stored user data
+        await apiService.setUserData(updatedUser);
+        // Refresh user data in AuthContext
+        if (refreshUserData) {
+          await refreshUserData();
+        }
+        Alert.alert('Success', 'Profile photo updated successfully!');
+      } else {
+        throw new Error(response.message || 'Failed to upload image');
+      }
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      Alert.alert('Error', error.message || 'Failed to upload profile photo. Please try again.');
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
   return (
     <ScrollView style={styles.content}>
       <View style={styles.profileHeader}>
-        <View style={styles.profileImageContainer}>
+        <TouchableOpacity 
+          style={styles.profileImageContainer}
+          onPress={showImagePickerOptions}
+          disabled={isUploadingImage}
+        >
           {actualUserData.profileImage ? (
             <Image source={{ uri: actualUserData.profileImage }} style={styles.profileImage} />
           ) : (
@@ -96,7 +188,16 @@ const ProfileTab = ({ userData }) => {
               </Text>
             </View>
           )}
-        </View>
+          {isUploadingImage ? (
+            <View style={styles.imageUploadOverlay}>
+              <ActivityIndicator size="small" color="#fff" />
+            </View>
+          ) : (
+            <View style={styles.imageEditBadge}>
+              <Icon name="camera" size={16} color="#fff" solid />
+            </View>
+          )}
+        </TouchableOpacity>
         <Text style={styles.profileName}>{actualUserData.name || 'User'}</Text>
         <Text style={styles.profilePhone}>{actualUserData.phone || 'Not provided'}</Text>
         <Text style={styles.profileType}>

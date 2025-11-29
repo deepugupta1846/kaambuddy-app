@@ -155,9 +155,9 @@ const ChatTab = () => {
     <View style={styles.emptyState}>
       <Text style={styles.emptyStateIcon}>💬</Text>
       <Text style={styles.emptyStateTitle}>Start a Conversation</Text>
-      <Text style={styles.emptyStateText}>
+      {/* <Text style={styles.emptyStateText}>
         Select an AI model and start chatting! Ask questions, get help, or just have a conversation.
-      </Text>
+      </Text> */}
     </View>
   );
 

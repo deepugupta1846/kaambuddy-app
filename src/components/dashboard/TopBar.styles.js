@@ -18,6 +18,35 @@ export default StyleSheet.create({
   },
   topBarLeft: {
     flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profileImageSmall: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+    borderWidth: 2,
+    borderColor: colors.textLight,
+  },
+  profileImagePlaceholderSmall: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.textLight,
+  },
+  profileImageTextSmall: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textLight,
+  },
+  titleContainer: {
+    flex: 1,
   },
   topBarTitle: {
     fontSize: 20,

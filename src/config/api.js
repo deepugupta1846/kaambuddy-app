@@ -7,7 +7,7 @@ import sessionStorage from '../utils/sessionStorage';
 // For iOS simulator, use localhost
 // For physical devices, use your computer's IP address
 const getBaseURL = () => {
-  if (__DEV__) {
+  if (false) {
     // Development mode
     if (Platform.OS === 'android') {
       // Android emulator special IP that maps to host machine's localhost
@@ -282,6 +282,43 @@ class ApiService {
       method: 'PUT',
       body: profileData,
     });
+  }
+
+  async uploadProfileImage(imageUri) {
+    try {
+      const token = await this.getAuthToken();
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append('image', {
+        uri: imageUri,
+        type: 'image/jpeg',
+        name: 'profile.jpg',
+      });
+
+      const response = await fetch(`${this.baseURL}/users/profile-image`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Don't set Content-Type, let fetch set it with boundary for FormData
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to upload profile image');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      throw error;
+    }
   }
 
   async listWorkers(filters = {}) {

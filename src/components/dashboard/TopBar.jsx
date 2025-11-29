@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './TopBar.styles';
 import { useLocation } from '../../context/LocationContext';
@@ -11,7 +11,17 @@ const TopBar = ({ onSettingsPress, onNotificationPress }) => {
   return (
     <View style={styles.topBar}>
       <View style={styles.topBarLeft}>
-        <Text style={styles.topBarTitle}>{user?.name || 'User'}</Text>
+        {user?.profileImage ? (
+          <Image source={{ uri: user.profileImage }} style={styles.profileImageSmall} />
+        ) : (
+          <View style={styles.profileImagePlaceholderSmall}>
+            <Text style={styles.profileImageTextSmall}>
+              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
+            </Text>
+          </View>
+        )}
+        <View style={styles.titleContainer}>
+          <Text style={styles.topBarTitle}>{user?.name || 'User'}</Text>
         {hasPermission && (
           <TouchableOpacity 
             style={styles.locationContainer}
@@ -28,6 +38,7 @@ const TopBar = ({ onSettingsPress, onNotificationPress }) => {
             </Text>
           </TouchableOpacity>
         )}
+        </View>
       </View>
       <View style={styles.topBarRight}>
         <TouchableOpacity 
