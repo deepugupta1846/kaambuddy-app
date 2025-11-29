@@ -3,14 +3,15 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './TopBar.styles';
 import { useLocation } from '../../context/LocationContext';
+import { useAuth } from '../../context/AuthContext';
 
 const TopBar = ({ onSettingsPress, onNotificationPress }) => {
   const { locationName, isLoading, hasPermission, refreshLocation } = useLocation();
-
+  const { user } = useAuth();
   return (
     <View style={styles.topBar}>
       <View style={styles.topBarLeft}>
-        <Text style={styles.topBarTitle}>KaamBuddy</Text>
+        <Text style={styles.topBarTitle}>{user?.name || 'User'}</Text>
         {hasPermission && (
           <TouchableOpacity 
             style={styles.locationContainer}

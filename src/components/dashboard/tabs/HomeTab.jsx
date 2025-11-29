@@ -31,7 +31,7 @@ const HomeTab = ({ userType }) => {
 
   return (
     <ScrollView style={styles.content}>
-      <View style={styles.welcomeSection}>
+      {/* <View style={styles.welcomeSection}>
         <Text style={styles.welcomeText}>
           Welcome back, {user?.name || 'User'}!
         </Text>
@@ -41,17 +41,17 @@ const HomeTab = ({ userType }) => {
             : 'Manage your jobs and earnings'
           }
         </Text>
-      </View>
+      </View> */}
 
       {userType === 'customer' ? (
         <>
-          <StatsCards 
+          {/* <StatsCards 
             stats={[
               { number: userJobs?.length?.toString() || '0', label: 'My Jobs' },
               { number: bookings?.filter(b => b.status === 'completed').length?.toString() || '0', label: 'Completed Jobs' },
               { number: '₹2,500', label: 'Total Spent' }
             ]}
-          />
+          /> */}
           <ServiceCategories />
           <RecentBookings bookings={bookings} isLoading={bookingsLoading} />
         </>
