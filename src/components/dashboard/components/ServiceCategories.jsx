@@ -53,7 +53,7 @@ const ServiceCategories = () => {
 
   return (
     <>
-      <View style={styles.quickActions}>
+      <View style={styles.container}>
         <Text style={styles.sectionTitle}>Find Services</Text>
         <View style={styles.actionGrid}>
           {services.length > 0 ? (

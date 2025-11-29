@@ -1,10 +1,13 @@
 import React, { useEffect } from 'react';
-import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import UserTypeToggle from '../components/UserTypeToggle';
 import StatsCards from '../components/StatsCards';
 import ServiceCategories from '../components/ServiceCategories';
 import RecentBookings from '../components/RecentBookings';
 import RecentJobs from '../components/RecentJobs';
+import ImageCarousel from '../components/ImageCarousel';
+import WorkerCarousel from '../components/WorkerCarousel';
 import styles from './HomeTab.styles';
 import { useJobs } from '../../../context/JobContext';
 import { useBookings } from '../../../context/BookingContext';
@@ -14,9 +17,6 @@ const HomeTab = ({ userType }) => {
   const { user } = useAuth();
   const { listJobs, getUserJobs, jobs, userJobs, isLoading: jobsLoading } = useJobs();
   const { getUserBookings, bookings, isLoading: bookingsLoading } = useBookings();
-
-  console.log('HomeTab: User type:', userType);
-  console.log('HomeTab: User data:', user);
 
   useEffect(() => {
     // Load data based on user type
@@ -30,29 +30,39 @@ const HomeTab = ({ userType }) => {
   }, [userType]);
 
   return (
-    <ScrollView style={styles.content}>
-      {/* <View style={styles.welcomeSection}>
-        <Text style={styles.welcomeText}>
-          Welcome back, {user?.name || 'User'}!
-        </Text>
+    <ScrollView 
+      style={styles.content}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+    >
+      {/* Image Carousel */}
+      <ImageCarousel />
+
+      {/* Welcome Section */}
+      <View style={styles.welcomeSection}>
+        <View style={styles.welcomeHeader}>
+          <View>
+            <Text style={styles.welcomeGreeting}>Hello,</Text>
+            <Text style={styles.welcomeName}>{user?.name || 'User'}! 👋</Text>
+          </View>
+          <View style={styles.iconBadge}>
+            <Icon name="bell" size={20} color="#fdd017" solid />
+          </View>
+        </View>
         <Text style={styles.subtitleText}>
           {userType === 'customer' 
-            ? 'Find skilled workers for your needs' 
-            : 'Manage your jobs and earnings'
+            ? 'Find skilled workers for all your needs' 
+            : 'Manage your jobs and grow your earnings'
           }
         </Text>
-      </View> */}
+      </View>
 
       {userType === 'customer' ? (
         <>
-          {/* <StatsCards 
-            stats={[
-              { number: userJobs?.length?.toString() || '0', label: 'My Jobs' },
-              { number: bookings?.filter(b => b.status === 'completed').length?.toString() || '0', label: 'Completed Jobs' },
-              { number: '₹2,500', label: 'Total Spent' }
-            ]}
-          /> */}
           <ServiceCategories />
+          {/* Worker Carousel */}
+          <WorkerCarousel />
+
           <RecentBookings bookings={bookings} isLoading={bookingsLoading} />
         </>
       ) : (
@@ -67,6 +77,7 @@ const HomeTab = ({ userType }) => {
           <RecentJobs jobs={jobs} isLoading={jobsLoading} />
         </>
       )}
+
     </ScrollView>
   );
 };

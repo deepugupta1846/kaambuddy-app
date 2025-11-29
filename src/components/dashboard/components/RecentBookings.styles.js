@@ -4,6 +4,7 @@ import colors from '../../../theme/colors';
 export default StyleSheet.create({
   recentBookings: {
     marginBottom: 20,
+    paddingHorizontal: 20,
   },
   sectionTitle: {
     fontSize: 20,

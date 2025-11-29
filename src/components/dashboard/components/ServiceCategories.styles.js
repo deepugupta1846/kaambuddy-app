@@ -2,6 +2,10 @@ import { StyleSheet } from 'react-native';
 import colors from '../../../theme/colors';
 
 export default StyleSheet.create({
+  container: {
+    marginBottom: 20,
+    paddingHorizontal: 20,
+  },
   quickActions: {
     marginBottom: 30,
   },
