@@ -285,12 +285,39 @@ class ApiService {
   }
 
   async listWorkers(filters = {}) {
-    const queryParams = new URLSearchParams(filters).toString();
-    return this.request(`/users/workers?${queryParams}`);
+    try {
+      // Build query string only if filters exist
+      let queryString = '';
+      if (Object.keys(filters).length > 0) {
+        const queryParams = new URLSearchParams();
+        Object.keys(filters).forEach(key => {
+          if (filters[key] !== undefined && filters[key] !== null && filters[key] !== '') {
+            queryParams.append(key, filters[key]);
+          }
+        });
+        queryString = queryParams.toString();
+      }
+      
+      const endpoint = queryString ? `/users/workers?${queryString}` : '/users/workers';
+      console.log('Fetching workers from:', endpoint);
+      return await this.request(endpoint);
+    } catch (error) {
+      console.error('Error in listWorkers:', error);
+      throw error;
+    }
   }
 
   async getWorkerProfile(workerId) {
-    return this.request(`/users/workers/${workerId}`);
+    try {
+      if (!workerId) {
+        throw new Error('Worker ID is required');
+      }
+      console.log('Fetching worker profile for ID:', workerId);
+      return await this.request(`/users/workers/${workerId}`);
+    } catch (error) {
+      console.error('Error in getWorkerProfile:', error);
+      throw error;
+    }
   }
 
   // KYC methods

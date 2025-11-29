@@ -1,166 +1,120 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, ActivityIndicator, Modal, TextInput, Alert } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './ServicesTab.styles';
-import { useJobs } from '../../../context/JobContext';
-import { useAuth } from '../../../context/AuthContext';
+import { useServices } from '../../../context/ServiceContext';
+import ServiceNavigation from '../components/ServiceNavigation';
+import WorkersList from '../components/WorkersList';
 
 const ServicesTab = ({ userType }) => {
-  const { user } = useAuth();
-  const { jobs, userJobs, listJobs, getUserJobs, createJob, isLoading } = useJobs();
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newJob, setNewJob] = useState({
-    title: '',
-    description: '',
-    category: '',
-    budget: '',
-    location: '',
-  });
+  const { services, isLoading, error, loadServices } = useServices();
+  const [showServiceNavigation, setShowServiceNavigation] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
+  const [showWorkersList, setShowWorkersList] = useState(false);
 
   useEffect(() => {
-    if (userType === 'customer') {
-      getUserJobs();
-    } else {
-      listJobs();
-    }
-  }, [userType]);
+    loadServices();
+  }, [loadServices]);
 
-  const handleCreateJob = async () => {
-    if (!newJob.title || !newJob.description || !newJob.budget) {
-      Alert.alert('Error', 'Please fill in all required fields');
-      return;
-    }
+  const handleServiceClick = useCallback((service) => {
+    setSelectedService(service);
+    setShowServiceNavigation(true);
+  }, []);
 
-    try {
-      await createJob({
-        ...newJob,
-        budget: parseFloat(newJob.budget),
-        customerId: user.id,
-      });
-      setShowCreateModal(false);
-      setNewJob({ title: '', description: '', category: '', budget: '', location: '' });
-      Alert.alert('Success', 'Job created successfully!');
-    } catch (error) {
-      Alert.alert('Error', error.message);
-    }
-  };
+  const handleCloseNavigation = useCallback(() => {
+    setShowServiceNavigation(false);
+    setSelectedService(null);
+  }, []);
 
-  const renderJobItem = ({ item }) => (
-    <View style={styles.jobItem}>
-      <Text style={styles.jobTitle}>{item.title}</Text>
-      <Text style={styles.jobDescription}>{item.description}</Text>
-      <Text style={styles.jobBudget}>Budget: ₹{item.budget}</Text>
-      <Text style={styles.jobStatus}>Status: {item.status}</Text>
-      <Text style={styles.jobDate}>
-        {new Date(item.createdAt).toLocaleDateString()}
-      </Text>
-    </View>
-  );
-
-  if (isLoading) {
+  if (isLoading && services.length === 0) {
     return (
       <View style={styles.content}>
-        <ActivityIndicator size="large" color="#fdd017" />
+        <Text style={styles.tabTitle}>All Services</Text>
+        <View style={[styles.servicesContainer, { justifyContent: 'center', padding: 20 }]}>
+          <ActivityIndicator size="large" color="#fdd017" />
+        </View>
+      </View>
+    );
+  }
+
+  if (error && services.length === 0) {
+    return (
+      <View style={styles.content}>
+        <Text style={styles.tabTitle}>All Services</Text>
+        <View style={[styles.servicesContainer, { justifyContent: 'center', padding: 20 }]}>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity 
+            style={styles.retryButton}
+            onPress={() => loadServices()}
+          >
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={styles.content}>
-      <Text style={styles.tabTitle}>
-        {userType === 'customer' ? 'My Jobs' : 'Available Jobs'}
-      </Text>
-      
-      {userType === 'customer' && (
-        <TouchableOpacity 
-          style={styles.createButton}
-          onPress={() => setShowCreateModal(true)}
-        >
-          <Text style={styles.createButtonText}>Create New Job</Text>
-        </TouchableOpacity>
-      )}
-      
-      {(userType === 'customer' ? userJobs : jobs).length === 0 ? (
-        <Text style={styles.comingSoon}>
-          {userType === 'customer' 
-            ? 'No jobs created yet' 
-            : 'No jobs available'
-          }
-        </Text>
-      ) : (
-        <FlatList
-          data={userType === 'customer' ? userJobs : jobs}
-          renderItem={renderJobItem}
-          keyExtractor={(item) => item.id.toString()}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-
-      {/* Create Job Modal */}
-      <Modal
-        visible={showCreateModal}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Create New Job</Text>
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Job Title"
-              value={newJob.title}
-              onChangeText={(text) => setNewJob({ ...newJob, title: text })}
-            />
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Description"
-              value={newJob.description}
-              onChangeText={(text) => setNewJob({ ...newJob, description: text })}
-              multiline
-              numberOfLines={3}
-            />
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Category"
-              value={newJob.category}
-              onChangeText={(text) => setNewJob({ ...newJob, category: text })}
-            />
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Budget (₹)"
-              value={newJob.budget}
-              onChangeText={(text) => setNewJob({ ...newJob, budget: text })}
-              keyboardType="numeric"
-            />
-            
-            <TextInput
-              style={styles.input}
-              placeholder="Location"
-              value={newJob.location}
-              onChangeText={(text) => setNewJob({ ...newJob, location: text })}
-            />
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowCreateModal(false)}
-              >
-                <Text style={styles.modalButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.createModalButton]}
-                onPress={handleCreateJob}
-              >
-                <Text style={styles.modalButtonText}>Create</Text>
-              </TouchableOpacity>
-            </View>
+    <>
+      <View style={styles.content}>
+        <Text style={styles.tabTitle}>All Services</Text>
+        
+        {services.length === 0 ? (
+          <View style={styles.servicesContainer}>
+            <Text style={styles.emptyText}>No services available</Text>
           </View>
-        </View>
-      </Modal>
-    </View>
+        ) : (
+          <ScrollView 
+            style={styles.scrollView}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.servicesContainer}>
+              {services.map((service, index) => (
+                <TouchableOpacity 
+                  key={service.id || service._id || index} 
+                  style={styles.serviceCard}
+                  onPress={() => handleServiceClick(service)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.serviceIcon}>{service.icon || '🔧'}</Text>
+                  <Text style={styles.serviceName} numberOfLines={2}>
+                    {service.name}
+                  </Text>
+                  {service.description && (
+                    <Text style={styles.serviceDescription} numberOfLines={2}>
+                      {service.description}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+        )}
+      </View>
+
+      {/* Floating Action Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => setShowWorkersList(true)}
+        activeOpacity={0.8}
+      >
+        <Icon name="user-tie" size={20} color="#ffffff" solid />
+        <Text style={styles.fabText}>Consult Our Experienced Worker</Text>
+      </TouchableOpacity>
+
+      {/* Service Navigation Modal */}
+      <ServiceNavigation
+        visible={showServiceNavigation}
+        service={selectedService}
+        onClose={handleCloseNavigation}
+      />
+
+      {/* Workers List Modal */}
+      <WorkersList
+        visible={showWorkersList}
+        onClose={() => setShowWorkersList(false)}
+      />
+    </>
   );
 };
 
