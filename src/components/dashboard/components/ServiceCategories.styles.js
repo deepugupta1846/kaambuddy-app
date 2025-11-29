@@ -144,6 +144,33 @@ export default StyleSheet.create({
   subServiceItemDisabled: {
     opacity: 0.6,
   },
+  emptyText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    padding: 20,
+    width: '100%',
+  },
+  errorText: {
+    fontSize: 14,
+    color: colors.error || '#ff0000',
+    textAlign: 'center',
+    padding: 20,
+    width: '100%',
+    marginBottom: 10,
+  },
+  retryButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    alignSelf: 'center',
+  },
+  retryButtonText: {
+    color: colors.textLight,
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
 
 

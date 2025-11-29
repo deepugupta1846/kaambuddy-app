@@ -96,7 +96,7 @@ export const LocationProvider = ({ children }) => {
             accuracy: position.coords.accuracy,
             timestamp: position.timestamp,
           };
-
+          debugger
           setCurrentLocation(location);
           
           // Reverse geocode to get address

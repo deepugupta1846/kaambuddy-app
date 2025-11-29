@@ -166,7 +166,7 @@ const ChatTab = () => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      {renderModelSelector()}
+      {/* {renderModelSelector()} */}
       
       <FlatList
         ref={flatListRef}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './TopBar.styles';
 import { useLocation } from '../../context/LocationContext';
 
@@ -19,7 +20,7 @@ const TopBar = ({ onSettingsPress, onNotificationPress }) => {
             {isLoading ? (
               <ActivityIndicator size="small" color="#ffffff" style={styles.locationLoader} />
             ) : (
-              <Text style={styles.locationIcon}>📍</Text>
+              <Icon name="map-marker-alt" size={12} color="#ffffff" solid style={styles.locationIcon} />
             )}
             <Text style={styles.locationText} numberOfLines={1}>
               {locationName || 'Getting location...'}
@@ -32,13 +33,13 @@ const TopBar = ({ onSettingsPress, onNotificationPress }) => {
           style={styles.topBarButton}
           onPress={onNotificationPress}
         >
-          <Text style={styles.topBarButtonText}>🔔</Text>
+          <Icon name="bell" size={20} color="#ffffff" solid />
         </TouchableOpacity>
         <TouchableOpacity 
           style={styles.topBarButton}
           onPress={onSettingsPress}
         >
-          <Text style={styles.topBarButtonText}>⚙️</Text>
+          <Icon name="cog" size={20} color="#ffffff" solid />
         </TouchableOpacity>
       </View>
     </View>

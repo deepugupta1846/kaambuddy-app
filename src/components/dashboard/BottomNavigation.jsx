@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './BottomNavigation.styles';
+import colors from '../../theme/colors';
 
 const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
   console.log('BottomNavigation: Rendering for user type:', userType);
@@ -9,20 +11,20 @@ const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
   const getTabsForUserType = () => {
     if (userType === 'customer') {
       return [
-        { key: 'home', icon: '🏠', label: 'Home' },
-        { key: 'bookings', icon: '📋', label: 'Bookings' },
-        { key: 'services', icon: '🛠️', label: 'Services' },
-        { key: 'chat', icon: '💬', label: 'Chat' },
-        { key: 'profile', icon: '👤', label: 'Profile' }
+        { key: 'home', iconName: 'home', label: 'Home' },
+        { key: 'bookings', iconName: 'clipboard-list', label: 'Bookings' },
+        { key: 'services', iconName: 'tools', label: 'Services' },
+        { key: 'chat', iconName: 'comments', label: 'Chat' },
+        { key: 'profile', iconName: 'user', label: 'Profile' }
       ];
     } else {
       // Worker tabs
       return [
-        { key: 'home', icon: '🏠', label: 'Home' },
-        { key: 'bookings', icon: '🔧', label: 'Jobs' },
-        { key: 'earnings', icon: '💰', label: 'Earnings' },
-        { key: 'chat', icon: '💬', label: 'Chat' },
-        { key: 'profile', icon: '👤', label: 'Profile' }
+        { key: 'home', iconName: 'home', label: 'Home' },
+        { key: 'bookings', iconName: 'briefcase', label: 'Jobs' },
+        { key: 'earnings', iconName: 'dollar-sign', label: 'Earnings' },
+        { key: 'chat', iconName: 'comments', label: 'Chat' },
+        { key: 'profile', iconName: 'user', label: 'Profile' }
       ];
     }
   };
@@ -37,9 +39,13 @@ const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
           style={[styles.bottomTab, activeTab === tab.key && styles.activeTab]} 
           onPress={() => setActiveTab(tab.key)}
         >
-          <Text style={[styles.bottomTabIcon, activeTab === tab.key && styles.activeTabIcon]}>
-            {tab.icon}
-          </Text>
+          <Icon 
+            name={tab.iconName} 
+            size={24} 
+            color={activeTab === tab.key ? colors.primary : colors.textSecondary}
+            solid
+            style={[styles.bottomTabIcon, activeTab === tab.key && styles.activeTabIcon]}
+          />
           <Text style={[styles.bottomTabText, activeTab === tab.key && styles.activeTabText]}>
             {tab.label}
           </Text>

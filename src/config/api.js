@@ -1,12 +1,37 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 import sessionStorage from '../utils/sessionStorage';
 
 // API Configuration
+// For Android emulator, use 10.0.2.2 instead of localhost
+// For iOS simulator, use localhost
+// For physical devices, use your computer's IP address
+const getBaseURL = () => {
+  if (__DEV__) {
+    // Development mode
+    if (Platform.OS === 'android') {
+      // Android emulator special IP that maps to host machine's localhost
+      return 'http://10.0.2.2:3000/api';
+    } else {
+      // iOS simulator or other platforms
+      return 'http://localhost:3000/api';
+    }
+  } else {
+    // Production mode - use your production API URL
+    return 'https://kaambuddy-backend-app.onrender.com/api';
+  }
+};
+
+const BASE_URL = getBaseURL();
+
 const API_CONFIG = {
-  BASE_URL: 'https://kaambuddy-backend-app.onrender.com/api',
+  BASE_URL: BASE_URL,
   TIMEOUT: 10000,
   RETRY_ATTEMPTS: 3,
 };
+
+// Log the API URL being used (helpful for debugging)
+console.log(`📡 API Base URL: ${BASE_URL} (Platform: ${Platform.OS}, Dev: ${__DEV__})`);
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -497,6 +522,90 @@ class ApiService {
       console.error('Health check failed:', error);
       throw error;
     }
+  }
+
+  // Services API methods
+  async getServices(isActive = true) {
+    console.log('API: Getting services');
+    const queryParams = isActive !== undefined ? `?isActive=${isActive}` : '';
+    const response = await this.request(`/services${queryParams}`);
+    console.log('API: Services response:', response);
+    return response;
+  }
+
+  async getService(serviceId, includeCategories = false, includeItems = false) {
+    console.log('API: Getting service:', serviceId);
+    const queryParams = [];
+    if (includeCategories) queryParams.push('includeCategories=true');
+    if (includeItems) queryParams.push('includeItems=true');
+    const queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
+    const response = await this.request(`/services/${serviceId}${queryString}`);
+    console.log('API: Service response:', response);
+    return response;
+  }
+
+  async getServiceCategories(serviceId, isActive = true) {
+    console.log('API: Getting service categories for:', serviceId);
+    const queryParams = isActive !== undefined ? `?isActive=${isActive}` : '';
+    const response = await this.request(`/services/${serviceId}/categories${queryParams}`);
+    console.log('API: Service categories response:', response);
+    return response;
+  }
+
+  async getCategoryServices(serviceId, categoryId, isActive = true) {
+    console.log('API: Getting category services for:', serviceId, categoryId);
+    const queryParams = isActive !== undefined ? `?isActive=${isActive}` : '';
+    const response = await this.request(`/services/${serviceId}/categories/${categoryId}/services${queryParams}`);
+    console.log('API: Category services response:', response);
+    return response;
+  }
+
+  async createService(serviceData) {
+    console.log('API: Creating service:', serviceData);
+    const response = await this.request('/services', {
+      method: 'POST',
+      body: serviceData,
+    });
+    console.log('API: Create service response:', response);
+    return response;
+  }
+
+  async updateService(serviceId, serviceData) {
+    console.log('API: Updating service:', serviceId);
+    const response = await this.request(`/services/${serviceId}`, {
+      method: 'PUT',
+      body: serviceData,
+    });
+    console.log('API: Update service response:', response);
+    return response;
+  }
+
+  async deleteService(serviceId) {
+    console.log('API: Deleting service:', serviceId);
+    const response = await this.request(`/services/${serviceId}`, {
+      method: 'DELETE',
+    });
+    console.log('API: Delete service response:', response);
+    return response;
+  }
+
+  async bulkCreateServices(servicesData) {
+    console.log('API: Bulk creating services');
+    const response = await this.request('/services/bulk-create', {
+      method: 'POST',
+      body: servicesData,
+    });
+    console.log('API: Bulk create services response:', response);
+    return response;
+  }
+
+  async loadDefaultServices() {
+    console.log('API: Loading default services');
+    const response = await this.request('/services/load-default', {
+      method: 'POST',
+    });
+    console.log('API: Load default services response:', response);
+    return response;
   }
 }
 

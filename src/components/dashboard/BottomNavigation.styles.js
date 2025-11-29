@@ -24,12 +24,10 @@ export default StyleSheet.create({
     // Active state styling
   },
   bottomTabIcon: {
-    fontSize: 24,
     marginBottom: 4,
-    opacity: 0.6,
   },
   activeTabIcon: {
-    opacity: 1,
+    // Icon color is handled by the Icon component
   },
   bottomTabText: {
     fontSize: 12,
