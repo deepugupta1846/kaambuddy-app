@@ -14,7 +14,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
         { key: 'home', iconName: 'home', label: 'Home' },
         { key: 'bookings', iconName: 'clipboard-list', label: 'Bookings' },
         { key: 'services', iconName: 'tools', label: 'Services' },
-        { key: 'chat', iconName: 'comments', label: 'Chat' },
+        { key: 'cart', iconName: 'shopping-cart', label: 'Cart' },
         { key: 'profile', iconName: 'user', label: 'Profile' }
       ];
     } else {
@@ -23,7 +23,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, userType }) => {
         { key: 'home', iconName: 'home', label: 'Home' },
         { key: 'bookings', iconName: 'briefcase', label: 'Jobs' },
         { key: 'earnings', iconName: 'dollar-sign', label: 'Earnings' },
-        { key: 'chat', iconName: 'comments', label: 'Chat' },
+        { key: 'cart', iconName: 'shopping-cart', label: 'Cart' },
         { key: 'profile', iconName: 'user', label: 'Profile' }
       ];
     }

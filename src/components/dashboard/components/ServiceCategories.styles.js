@@ -4,7 +4,7 @@ import colors from '../../../theme/colors';
 export default StyleSheet.create({
   container: {
     marginBottom: 20,
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
   },
   quickActions: {
     marginBottom: 30,
@@ -13,7 +13,7 @@ export default StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: colors.textPrimary,
-    marginBottom: 15,
+    marginBottom: 12,
   },
   actionGrid: {
     flexDirection: 'row',
@@ -21,26 +21,43 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
   },
   actionCard: {
-    width: '48%',
+    width: '31%',
     backgroundColor: colors.surface,
     borderRadius: 12,
-    padding: 20,
-    marginBottom: 15,
+    padding: 16,
+    marginBottom: 12,
     alignItems: 'center',
-    elevation: 2,
+    elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 2,
+    position: 'relative',
   },
   actionIcon: {
-    fontSize: 32,
-    marginBottom: 10,
+    fontSize: 36,
+    marginBottom: 8,
   },
   actionText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '600',
     color: colors.textPrimary,
+    textAlign: 'center',
+    lineHeight: 16,
+  },
+  saleBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    backgroundColor: '#28a745',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  saleBadgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   // Modal Styles
   modalOverlay: {

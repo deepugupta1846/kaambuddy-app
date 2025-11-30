@@ -25,8 +25,7 @@ const ServiceCategories = () => {
 
   if (isLoading && services.length === 0) {
     return (
-      <View style={styles.quickActions}>
-        <Text style={styles.sectionTitle}>Find Services</Text>
+      <View style={styles.container}>
         <View style={[styles.actionGrid, { justifyContent: 'center', padding: 20 }]}>
           <ActivityIndicator size="large" color="#fdd017" />
         </View>
@@ -36,8 +35,7 @@ const ServiceCategories = () => {
 
   if (error && services.length === 0) {
     return (
-      <View style={styles.quickActions}>
-        <Text style={styles.sectionTitle}>Find Services</Text>
+      <View style={styles.container}>
         <View style={[styles.actionGrid, { justifyContent: 'center', padding: 20 }]}>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity 
@@ -54,7 +52,6 @@ const ServiceCategories = () => {
   return (
     <>
       <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Find Services</Text>
         <View style={styles.actionGrid}>
           {services.length > 0 ? (
             services.map((service, index) => (
@@ -62,9 +59,17 @@ const ServiceCategories = () => {
                 key={service.id || service._id || index} 
                 style={styles.actionCard}
                 onPress={() => handleServiceClick(service)}
+                activeOpacity={0.7}
               >
+                {service.onSale && (
+                  <View style={styles.saleBadge}>
+                    <Text style={styles.saleBadgeText}>Sale</Text>
+                  </View>
+                )}
                 <Text style={styles.actionIcon}>{service.icon || '🔧'}</Text>
-                <Text style={styles.actionText}>{service.name}</Text>
+                <Text style={styles.actionText} numberOfLines={2}>
+                  {service.name}
+                </Text>
               </TouchableOpacity>
             ))
           ) : (

@@ -7,7 +7,7 @@ import sessionStorage from '../utils/sessionStorage';
 // For iOS simulator, use localhost
 // For physical devices, use your computer's IP address
 const getBaseURL = () => {
-  if (false) {
+  if (__DEV__) {
     // Development mode
     if (Platform.OS === 'android') {
       // Android emulator special IP that maps to host machine's localhost

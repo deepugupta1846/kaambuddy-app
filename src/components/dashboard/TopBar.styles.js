@@ -2,6 +2,20 @@ import { StyleSheet } from 'react-native';
 import colors from '../../theme/colors';
 
 export default StyleSheet.create({
+  topBarContainer: {
+    // paddingTop: 50, // Add extra padding for status bar
+    backgroundColor: colors.surface,
+  },
+  locationHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: colors.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
   topBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -54,6 +68,47 @@ export default StyleSheet.create({
     color: colors.textLight,
     marginBottom: 4,
   },
+  // Location header styles (for home tab)
+  locationHeaderContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  locationTextContainer: {
+    flex: 1,
+    marginLeft: 8,
+  },
+  areaName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: 2,
+  },
+  addressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  fullAddress: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    marginRight: 4,
+    flex: 1,
+  },
+  rightIconsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 8,
+    backgroundColor: colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  // Default top bar location styles (for other tabs)
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -5,7 +5,8 @@ import BottomNavigation from './BottomNavigation';
 import HomeTab from './tabs/HomeTab';
 import BookingsTab from './tabs/BookingsTab';
 import ServicesTab from './tabs/ServicesTab';
-import ChatTab from './tabs/ChatTab';
+// import ChatTab from './tabs/ChatTab';
+import CartTab from './tabs/CartTab';
 import EarningsTab from './tabs/EarningsTab';
 import ProfileTab from './tabs/ProfileTab';
 import SettingsScreen from './SettingsScreen';
@@ -70,8 +71,10 @@ const Dashboard = ({ userData }) => {
         return <BookingsTab userType={userType} />;
       case 'services':
         return <ServicesTab userType={userType} />;
-      case 'chat':
-        return <ChatTab />;
+      // case 'chat':
+      //   return <ChatTab />;
+      case 'cart':
+        return <CartTab />;
       case 'earnings':
         return <EarningsTab userType={userType} />;
       case 'profile':
@@ -87,6 +90,7 @@ const Dashboard = ({ userData }) => {
         <StatusBar backgroundColor="#fdd017" barStyle="light-content" translucent={true} />
         
         <TopBar 
+          activeTab={activeTab}
           onSettingsPress={handleSettingsPress}
           onNotificationPress={handleNotificationPress}
         />

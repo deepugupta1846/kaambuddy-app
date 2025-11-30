@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
-import { ScrollView, View, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome5';
+import { ScrollView, View, Text, Alert } from 'react-native';
 import UserTypeToggle from '../components/UserTypeToggle';
 import StatsCards from '../components/StatsCards';
 import ServiceCategories from '../components/ServiceCategories';
@@ -8,6 +7,8 @@ import RecentBookings from '../components/RecentBookings';
 import RecentJobs from '../components/RecentJobs';
 import ImageCarousel from '../components/ImageCarousel';
 import WorkerCarousel from '../components/WorkerCarousel';
+import SearchBar from '../components/SearchBar';
+import PromotionalBanner from '../components/PromotionalBanner';
 import styles from './HomeTab.styles';
 import { useJobs } from '../../../context/JobContext';
 import { useBookings } from '../../../context/BookingContext';
@@ -29,56 +30,70 @@ const HomeTab = ({ userType }) => {
     }
   }, [userType]);
 
+  const handleSearch = (searchText) => {
+    // Handle search
+    console.log('Search:', searchText);
+  };
+
+  const handleBannerPress = () => {
+    // Handle promotional banner press
+    Alert.alert('Promotion', 'Painting & Waterproofing service');
+  };
+
   return (
-    <ScrollView 
-      style={styles.content}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContent}
-    >
-      {/* Image Carousel */}
-      <ImageCarousel />
+    <View style={styles.container}>
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Search Bar */}
+        <SearchBar 
+          placeholder="Search for 'AC service'"
+          onSearch={handleSearch}
+        />
 
-      {/* Welcome Section */}
-      <View style={styles.welcomeSection}>
-        <View style={styles.welcomeHeader}>
-          <View>
-            <Text style={styles.welcomeGreeting}>Hello,</Text>
-            <Text style={styles.welcomeName}>{user?.name || 'User'}! 👋</Text>
-          </View>
-          <View style={styles.iconBadge}>
-            <Icon name="bell" size={20} color="#fdd017" solid />
-          </View>
-        </View>
-        <Text style={styles.subtitleText}>
-          {userType === 'customer' 
-            ? 'Find skilled workers for all your needs' 
-            : 'Manage your jobs and grow your earnings'
-          }
-        </Text>
-      </View>
+        {userType === 'customer' ? (
+          <>
+            {/* Service Categories */}
+            <ServiceCategories />
 
-      {userType === 'customer' ? (
-        <>
-          <ServiceCategories />
-          {/* Worker Carousel */}
-          <WorkerCarousel />
+            {/* Promotional Banner */}
+            <PromotionalBanner 
+              title="Home painting & waterproofing"
+              subtitle="Pay after 100% satisfaction"
+              onPress={handleBannerPress}
+            />
 
-          <RecentBookings bookings={bookings} isLoading={bookingsLoading} />
-        </>
-      ) : (
-        <>
-          <StatsCards 
-            stats={[
-              { number: jobs?.length?.toString() || '0', label: 'Available Jobs' },
-              { number: bookings?.filter(b => b.status === 'completed').length?.toString() || '0', label: 'Completed Jobs' },
-              { number: '4.8', label: 'Rating' }
-            ]}
-          />
-          <RecentJobs jobs={jobs} isLoading={jobsLoading} />
-        </>
-      )}
+            {/* Worker Carousel */}
+            <WorkerCarousel />
 
-    </ScrollView>
+            {/* Recent Bookings */}
+            <RecentBookings bookings={bookings} isLoading={bookingsLoading} />
+          </>
+        ) : (
+          <>
+            {/* Welcome Section for Workers */}
+            <View style={styles.welcomeSection}>
+              <Text style={styles.welcomeName}>Hello, {user?.name || 'User'}! 👋</Text>
+              <Text style={styles.subtitleText}>
+                Manage your jobs and grow your earnings
+              </Text>
+            </View>
+
+            <StatsCards 
+              stats={[
+                { number: jobs?.length?.toString() || '0', label: 'Available Jobs' },
+                { number: bookings?.filter(b => b.status === 'completed').length?.toString() || '0', label: 'Completed Jobs' },
+                { number: '4.8', label: 'Rating' }
+              ]}
+            />
+            <RecentJobs jobs={jobs} isLoading={jobsLoading} />
+          </>
+        )}
+
+      </ScrollView>
+    </View>
   );
 };
 

@@ -4,6 +4,10 @@ import colors from '../../../theme/colors';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: colors.background || '#f4f5f7',
+  },
   content: {
     flex: 1,
     backgroundColor: colors.background || '#f4f5f7',

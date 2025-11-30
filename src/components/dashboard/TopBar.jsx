@@ -1,58 +1,59 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, Image } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './TopBar.styles';
 import { useLocation } from '../../context/LocationContext';
-import { useAuth } from '../../context/AuthContext';
 
-const TopBar = ({ onSettingsPress, onNotificationPress }) => {
-  const { locationName, isLoading, hasPermission, refreshLocation } = useLocation();
-  const { user } = useAuth();
+const TopBar = ({ activeTab, onSettingsPress, onNotificationPress }) => {
+  const { locationName, refreshLocation } = useLocation();
+
+  // Parse location name to extract area and full address
+  const locationParts = locationName ? locationName.split(',') : [];
+  const areaName = locationParts[0] || 'Select Location';
+  const fullAddress = locationName || 'Tap to select location';
+
+  const handleLocationPress = () => {
+    refreshLocation();
+  };
+
+
+  // Show location header design for all tabs
   return (
-    <View style={styles.topBar}>
-      <View style={styles.topBarLeft}>
-        {user?.profileImage ? (
-          <Image source={{ uri: user.profileImage }} style={styles.profileImageSmall} />
-        ) : (
-          <View style={styles.profileImagePlaceholderSmall}>
-            <Text style={styles.profileImageTextSmall}>
-              {user?.name?.charAt(0)?.toUpperCase() || 'U'}
-            </Text>
+    <View style={styles.topBarContainer}>
+      <View style={styles.locationHeader}>
+        <TouchableOpacity 
+          style={styles.locationHeaderContainer}
+          onPress={handleLocationPress}
+          activeOpacity={0.7}
+        >
+          <Icon name="map-marker-alt" size={18} color="#333" solid />
+          <View style={styles.locationTextContainer}>
+            <Text style={styles.areaName}>{areaName}</Text>
+            <View style={styles.addressRow}>
+              <Text style={styles.fullAddress} numberOfLines={1}>
+                {fullAddress}
+              </Text>
+              <Icon name="chevron-down" size={12} color="#666" solid />
+            </View>
           </View>
-        )}
-        <View style={styles.titleContainer}>
-          <Text style={styles.topBarTitle}>{user?.name || 'User'}</Text>
-        {hasPermission && (
+        </TouchableOpacity>
+        
+        <View style={styles.rightIconsContainer}>
           <TouchableOpacity 
-            style={styles.locationContainer}
-            onPress={refreshLocation}
+            style={styles.iconButton}
+            onPress={onNotificationPress}
             activeOpacity={0.7}
           >
-            {isLoading ? (
-              <ActivityIndicator size="small" color="#ffffff" style={styles.locationLoader} />
-            ) : (
-              <Icon name="map-marker-alt" size={12} color="#ffffff" solid style={styles.locationIcon} />
-            )}
-            <Text style={styles.locationText} numberOfLines={1}>
-              {locationName || 'Getting location...'}
-            </Text>
+            <Icon name="bell" size={20} color="#333" solid />
           </TouchableOpacity>
-        )}
+          <TouchableOpacity 
+            style={styles.iconButton}
+            onPress={onSettingsPress}
+            activeOpacity={0.7}
+          >
+            <Icon name="cog" size={20} color="#333" solid />
+          </TouchableOpacity>
         </View>
-      </View>
-      <View style={styles.topBarRight}>
-        <TouchableOpacity 
-          style={styles.topBarButton}
-          onPress={onNotificationPress}
-        >
-          <Icon name="bell" size={20} color="#ffffff" solid />
-        </TouchableOpacity>
-        <TouchableOpacity 
-          style={styles.topBarButton}
-          onPress={onSettingsPress}
-        >
-          <Icon name="cog" size={20} color="#ffffff" solid />
-        </TouchableOpacity>
       </View>
     </View>
   );
