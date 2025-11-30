@@ -4,13 +4,18 @@ import styles from './ServiceCategoryDetailPage.styles';
 import { useServices } from '../../../context/ServiceContext';
 import { useJobs } from '../../../context/JobContext';
 import { useAuth } from '../../../context/AuthContext';
+import { useCart } from '../../../context/CartContext';
+import BookingForm from './BookingForm';
 import colors from '../../../theme/colors';
 
 const ServiceCategoryDetailPage = ({ service, category, onBack, onServiceSelect }) => {
   const { user } = useAuth();
   const { createJob, isLoading: isJobLoading } = useJobs();
+  const { addToCart, isLoading: isCartLoading } = useCart();
   const { loadCategoryServices, categoryServices: allCategoryServices, isLoadingServices } = useServices();
   const [localServices, setLocalServices] = useState([]);
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   const serviceId = service?.id || service?._id;
   const categoryId = category?.id || category?._id;
@@ -52,29 +57,26 @@ const ServiceCategoryDetailPage = ({ service, category, onBack, onServiceSelect 
     return [];
   }, [localServices, serviceId, categoryId, allCategoryServices]);
 
-  const handleAddService = async (serviceItem) => {
+  const handleAddService = (serviceItem) => {
     if (!user) {
       Alert.alert('Error', 'Please login to book a service');
       return;
     }
+    setSelectedService(serviceItem);
+    setShowBookingForm(true);
+  };
 
+  const handleBookingSubmit = async (bookingData) => {
     try {
-      await createJob({
-        title: `${serviceItem.name} - ${category.name}`,
-        description: serviceItem.description || '',
-        category: service.name?.toLowerCase() || serviceId,
-        budget: serviceItem.price || serviceItem.cost || 0,
-        location: user.address || 'Location to be specified',
-        customerId: user.id,
-      });
-      
+      await addToCart(bookingData);
       Alert.alert(
         'Success',
-        `${serviceItem.name} booked successfully! A service provider will contact you soon.`,
-        [{ text: 'OK' }]
+        'Service added to cart successfully!',
+        [{ text: 'OK', onPress: () => setShowBookingForm(false) }]
       );
     } catch (error) {
-      Alert.alert('Error', error.message || 'Failed to book service. Please try again.');
+      Alert.alert('Error', error.message || 'Failed to add service to cart. Please try again.');
+      throw error;
     }
   };
 
@@ -170,11 +172,11 @@ const ServiceCategoryDetailPage = ({ service, category, onBack, onServiceSelect 
                   <Text style={styles.serviceImageIcon}>{category.icon || '🔧'}</Text>
                 </View>
                 <TouchableOpacity
-                  style={[styles.addButton, isJobLoading && styles.addButtonDisabled]}
+                  style={[styles.addButton, (isJobLoading || isCartLoading) && styles.addButtonDisabled]}
                   onPress={() => handleAddService(serviceItem)}
-                  disabled={isJobLoading}
+                  disabled={isJobLoading || isCartLoading}
                 >
-                  {isJobLoading ? (
+                  {(isJobLoading || isCartLoading) ? (
                     <ActivityIndicator size="small" color={colors.primary} />
                   ) : (
                     <Text style={styles.addButtonText}>Add</Text>
@@ -189,6 +191,18 @@ const ServiceCategoryDetailPage = ({ service, category, onBack, onServiceSelect 
           </View>
         )}
       </ScrollView>
+
+      {/* Booking Form Modal */}
+      <BookingForm
+        visible={showBookingForm}
+        service={selectedService}
+        category={category}
+        onClose={() => {
+          setShowBookingForm(false);
+          setSelectedService(null);
+        }}
+        onSubmit={handleBookingSubmit}
+      />
     </SafeAreaView>
   );
 };

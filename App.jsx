@@ -17,6 +17,7 @@ import { BookingProvider } from './src/context/BookingContext';
 import { NotificationProvider } from './src/context/NotificationContext';
 import { LocationProvider } from './src/context/LocationContext';
 import { ServiceProvider } from './src/context/ServiceContext';
+import { CartProvider } from './src/context/CartContext';
 
 function App() {
   const [isSplashVisible, setIsSplashVisible] = useState(true);
@@ -38,13 +39,15 @@ function App() {
           <ServiceProvider>
             <JobProvider>
               <BookingProvider>
-                <NotificationProvider>
-                  {isSplashVisible ? (
-                    <SplashScreen onFinish={handleSplashFinish} />
-                  ) : (
-                    <AuthWrapper />
-                  )}
-                </NotificationProvider>
+                <CartProvider>
+                  <NotificationProvider>
+                    {isSplashVisible ? (
+                      <SplashScreen onFinish={handleSplashFinish} />
+                    ) : (
+                      <AuthWrapper />
+                    )}
+                  </NotificationProvider>
+                </CartProvider>
               </BookingProvider>
             </JobProvider>
           </ServiceProvider>
