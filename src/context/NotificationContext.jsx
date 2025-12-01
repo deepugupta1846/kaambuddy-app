@@ -30,8 +30,10 @@ export const NotificationProvider = ({ children }) => {
       const response = await apiService.getNotifications();
       
       if (response.success) {
-        setNotifications(response.data);
-        return response.data;
+        // Backend returns { data: { notifications, pagination } }
+        const list = response.data?.notifications || [];
+        setNotifications(list);
+        return list;
       }
       
       throw new Error(response.message || 'Failed to fetch notifications');
@@ -48,8 +50,10 @@ export const NotificationProvider = ({ children }) => {
       const response = await apiService.getUnreadCount();
       
       if (response.success) {
-        setUnreadCount(response.data.count);
-        return response.data.count;
+        // Backend returns { data: { unreadCount } }
+        const count = response.data?.unreadCount ?? 0;
+        setUnreadCount(count);
+        return count;
       }
     } catch (error) {
       console.error('Error fetching unread count:', error);

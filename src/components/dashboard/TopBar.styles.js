@@ -108,6 +108,23 @@ export default StyleSheet.create({
     alignItems: 'center',
     marginLeft: 8,
   },
+  notificationBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: colors.primary,
+    borderRadius: 8,
+    minWidth: 16,
+    height: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 3,
+  },
+  notificationBadgeText: {
+    color: colors.textLight,
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
   // Default top bar location styles (for other tabs)
   locationContainer: {
     flexDirection: 'row',

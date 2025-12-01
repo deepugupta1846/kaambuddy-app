@@ -14,9 +14,10 @@ import { useJobs } from '../../../context/JobContext';
 import { useBookings } from '../../../context/BookingContext';
 import { useAuth } from '../../../context/AuthContext';
 
-const HomeTab = ({ userType }) => {
+const HomeTab = ({ userType, onJobSelect }) => {
   const { user } = useAuth();
   const { listJobs, getUserJobs, jobs, userJobs, isLoading: jobsLoading } = useJobs();
+  const { applyForJob } = useBookings();
   const { getUserBookings, bookings, isLoading: bookingsLoading } = useBookings();
 
   useEffect(() => {
@@ -25,7 +26,8 @@ const HomeTab = ({ userType }) => {
       getUserJobs();
       getUserBookings();
     } else {
-      listJobs();
+      // Workers should see only open jobs as available
+      listJobs({ status: 'open' });
       getUserBookings();
     }
   }, [userType]);
@@ -38,6 +40,21 @@ const HomeTab = ({ userType }) => {
   const handleBannerPress = () => {
     // Handle promotional banner press
     Alert.alert('Promotion', 'Painting & Waterproofing service');
+  };
+
+  const handleAcceptJob = async (job) => {
+    try {
+      // Simple apply-for-job flow with fixed proposed price = budgetMax
+      const proposedPrice = Number(job.budgetMax) || Number(job.budgetMin) || 0;
+      await applyForJob(job.id, {
+        proposedPrice,
+        message: 'I would like to accept this job.',
+        scheduledDate: job.scheduledDate,
+      });
+      Alert.alert('Success', 'You have applied for this job.');
+    } catch (error) {
+      Alert.alert('Error', error.message || 'Failed to accept job.');
+    }
   };
 
   return (
@@ -88,7 +105,12 @@ const HomeTab = ({ userType }) => {
                 { number: '4.8', label: 'Rating' }
               ]}
             />
-            <RecentJobs jobs={jobs} isLoading={jobsLoading} />
+            <RecentJobs
+              jobs={jobs}
+              isLoading={jobsLoading}
+              onJobPress={onJobSelect}
+              onAcceptPress={handleAcceptJob}
+            />
           </>
         )}
 

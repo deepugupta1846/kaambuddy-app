@@ -1,54 +1,68 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
 import styles from './RecentJobs.styles';
+import ServiceDetailsNavigation from './ServiceDetailsNavigation';
+const RecentJobs = ({ jobs, onAcceptPress }) => {
+  
+  const [showServiceBookingNavigation, setshowServiceBookingNavigation] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
-const RecentJobs = ({jobs}) => {
-  // const jobs = [
-  //   {
-  //     title: 'Kitchen Sink Repair',
-  //     customer: 'Mrs. Gupta',
-  //     time: '2:00 PM - 4:00 PM',
-  //     payment: '₹500',
-  //     status: 'pending'
-  //   },
-  //   {
-  //     title: 'Bathroom Cleaning',
-  //     customer: 'Mr. Singh',
-  //     time: '10:00 AM - 11:30 AM',
-  //     payment: '₹400',
-  //     status: 'completed'
-  //   },
-  //   {
-  //     title: 'Wall Painting',
-  //     customer: 'Ms. Reddy',
-  //     time: '9:00 AM - 12:00 PM',
-  //     payment: '₹800',
-  //     status: 'inProgress'
-  //   }
-  // ];
+  const onJobPress = useCallback((service) => {
+    setSelectedService(service);
+    setshowServiceBookingNavigation(true);
+  }, []);
+
+  const handleCloseNavigation = useCallback(() => {
+    setshowServiceBookingNavigation(false);
+    setSelectedService(null);
+  }, []);
 
   return (
+    <>
     <View style={styles.recentJobs}>
       <Text style={styles.sectionTitle}>Today's Jobs</Text>
       <View style={styles.jobList}>
         {jobs.map((job, index) => (
-          <View key={index} style={styles.jobItem}>
-            <View style={styles.jobInfo}>
+          <View key={job.id || index} style={styles.jobItem}>
+            <TouchableOpacity
+              style={styles.jobInfo}
+              activeOpacity={0.7}
+              onPress={() => onJobPress(job)}
+            >
               <Text style={styles.jobTitle}>{job.title}</Text>
               <Text style={styles.jobCustomer}>{job.customer?.name}</Text>
               <Text style={styles.jobTime}>{job.scheduledDate}</Text>
               <Text style={styles.jobPayment}>{job.budgetMax}</Text>
+            </TouchableOpacity>
+            <View style={{ alignItems: 'flex-end' }}>
+              <View style={[
+                styles.jobStatus, 
+                job.status === 'completed' ? styles.completedStatus : 
+                job.status === 'in_progress' ? styles.inProgressStatus : 
+                styles.pendingStatus
+              ]} />
+              {job.status === 'open' && onAcceptPress && (
+                <TouchableOpacity
+                  style={styles.acceptButton}
+                  onPress={() => onAcceptPress(job)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.acceptButtonText}>Accept</Text>
+                </TouchableOpacity>
+              )}
             </View>
-            <View style={[
-              styles.jobStatus, 
-              job.status === 'completed' ? styles.completedStatus : 
-              job.status === 'inProgress' ? styles.inProgressStatus : 
-              styles.pendingStatus
-            ]} />
           </View>
         ))}
       </View>
     </View>
+
+    {/* Service Navigation Modal */}
+      <ServiceDetailsNavigation
+        visible={showServiceBookingNavigation}
+        service={selectedService}
+        onClose={handleCloseNavigation}
+      />
+    </>
   );
 };
 

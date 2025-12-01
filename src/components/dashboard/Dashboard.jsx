@@ -11,6 +11,7 @@ import EarningsTab from './tabs/EarningsTab';
 import ProfileTab from './tabs/ProfileTab';
 import SettingsScreen from './SettingsScreen';
 import styles from './Dashboard.styles';
+import JobDetailsScreen from './components/JobDetailsScreen';
 import { useAuth } from '../../context/AuthContext';
 import { ChatProvider } from '../../context/ChatContext';
 import permissionService from '../../utils/permissions';
@@ -19,6 +20,7 @@ const Dashboard = ({ userData }) => {
   const { user, logout } = useAuth();
   const currentUserData = user || userData;
   const [activeTab, setActiveTab] = useState('home');
+  const [selectedJob, setSelectedJob] = useState(null);
   const [showSettings, setShowSettings] = useState(false);
   
   // Get user type from logged-in user data (no longer toggleable)
@@ -66,7 +68,11 @@ const Dashboard = ({ userData }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <HomeTab userType={userType} />;
+        return (
+          <HomeTab
+            userType={userType}
+          />
+        );
       case 'bookings':
         return <BookingsTab userType={userType} />;
       case 'services':

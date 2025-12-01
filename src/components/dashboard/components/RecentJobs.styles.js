@@ -62,6 +62,18 @@ export default StyleSheet.create({
   inProgressStatus: {
     backgroundColor: colors.primary,
   },
+  acceptButton: {
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 6,
+    backgroundColor: colors.primary,
+  },
+  acceptButtonText: {
+    color: colors.textLight,
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });
 
 

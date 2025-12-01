@@ -111,5 +111,81 @@ export default StyleSheet.create({
     color: colors.textSecondary,
     textAlign: 'center',
   },
+
+   bookingTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#111111',
+    marginTop: 20,
+    marginBottom: 10,
+    paddingHorizontal: 16,
+  },
+
+  bookingStatus: {
+    fontSize: 16,
+    color: '#444444',
+    marginBottom: 8,
+    paddingHorizontal: 16,
+    lineHeight: 22,
+  },
+
+  bookingDate: {
+    fontSize: 16,
+    fontStyle: 'italic',
+    color: '#666666',
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+
+  /* ---------------- ACTION BUTTON ---------------- */
+  actionButton: {
+    width: '90%',
+    marginHorizontal: '5%',
+    paddingVertical: 16,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
+  acceptButton: {
+    backgroundColor: '#2F80ED',
+  },
+
+  actionButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '90%',
+    marginHorizontal: '5%',
+    marginTop: 20,
+    marginBottom: 20,
+  },
+
+  actionButtonSmall: {
+    flex: 1,
+    paddingVertical: 14,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+
+  actionButtonSmallText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+
+  cancelButton: {
+    backgroundColor: '#E53935', // red
+  },
+
+  paymentButton: {
+    backgroundColor: '#2F80ED', // blue
+  },
 });
 

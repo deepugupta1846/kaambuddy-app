@@ -3,9 +3,11 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import styles from './TopBar.styles';
 import { useLocation } from '../../context/LocationContext';
+import { useNotifications } from '../../context/NotificationContext';
 
 const TopBar = ({ activeTab, onSettingsPress, onNotificationPress }) => {
   const { locationName, refreshLocation } = useLocation();
+  const { unreadCount } = useNotifications();
 
   // Parse location name to extract area and full address
   const locationParts = locationName ? locationName.split(',') : [];
@@ -45,6 +47,13 @@ const TopBar = ({ activeTab, onSettingsPress, onNotificationPress }) => {
             activeOpacity={0.7}
           >
             <Icon name="bell" size={20} color="#333" solid />
+            {unreadCount > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </Text>
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity 
             style={styles.iconButton}
