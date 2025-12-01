@@ -3,7 +3,7 @@ import colors from '../../theme/colors';
 
 export default StyleSheet.create({
   topBarContainer: {
-    // paddingTop: 50, // Add extra padding for status bar
+    paddingTop: 50, // Add extra padding for status bar
     backgroundColor: colors.surface,
   },
   locationHeader: {

@@ -121,7 +121,6 @@ export const JobProvider = ({ children }) => {
       setIsLoading(true);
       setError(null);
       const response = await apiService.cancelJob(jobId);
-      debugger
       if (response.success) {
         // Remove job from both lists
         setJobs(prev => prev.filter(job => job.id !== jobId));

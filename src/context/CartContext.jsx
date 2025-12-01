@@ -7,6 +7,10 @@ const CartContext = createContext();
 
 const CART_STORAGE_KEY = 'cart_items';
 
+const getCartStorageKey = (userId) => {
+  return userId ? `${CART_STORAGE_KEY}_${userId}` : CART_STORAGE_KEY;
+};
+
 export const useCart = () => {
   const context = useContext(CartContext);
   if (!context) {
@@ -20,14 +24,20 @@ export const CartProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const { user } = useAuth();
 
-  // Load cart from storage on mount
+  // Load cart from storage on mount and when user changes
   useEffect(() => {
-    loadCartFromStorage();
-  }, []);
+    if (user && user.id) {
+      loadCartFromStorage(user.id);
+    } else {
+      // Clear cart in memory if no user is logged in
+      setCartItems([]);
+    }
+  }, [user && user.id]);
 
-  const loadCartFromStorage = async () => {
+  const loadCartFromStorage = async (userId) => {
     try {
-      const storedCart = await AsyncStorage.getItem(CART_STORAGE_KEY);
+      const storageKey = getCartStorageKey(userId);
+      const storedCart = await AsyncStorage.getItem(storageKey);
       if (storedCart) {
         setCartItems(JSON.parse(storedCart));
       }
@@ -38,7 +48,8 @@ export const CartProvider = ({ children }) => {
 
   const saveCartToStorage = async (items) => {
     try {
-      await AsyncStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+      const storageKey = getCartStorageKey(user && user.id);
+      await AsyncStorage.setItem(storageKey, JSON.stringify(items));
     } catch (error) {
       console.error('Error saving cart to storage:', error);
     }
@@ -55,6 +66,10 @@ export const CartProvider = ({ children }) => {
         category: bookingData.category,
         description: bookingData.description,
         scheduledDate: bookingData.scheduledDate,
+        // Keep references so backend can log service item booking
+        serviceId: bookingData.service?.serviceId || bookingData.category?.serviceId || bookingData.service?.service_id || bookingData.category?.service_id || bookingData.service?.id,
+        categoryId: bookingData.category?.id || bookingData.category?._id,
+        serviceItemId: bookingData.service?.id || bookingData.service?._id,
         createdAt: new Date().toISOString(),
         status: 'pending', // pending, booked, cancelled
       };
@@ -90,7 +105,7 @@ export const CartProvider = ({ children }) => {
       if (!item) {
         throw new Error('Cart item not found');
       }
-
+      
       // Create job via API
       const price = item.service.price || item.service.cost || 0;
       const jobData = {
@@ -101,6 +116,10 @@ export const CartProvider = ({ children }) => {
         budgetMax: price,
         location: user?.address || 'Location to be specified',
         scheduledDate: item.scheduledDate,
+        // Extra metadata so backend can create service_item_bookings entry
+        serviceId: item.serviceId,
+        categoryId: item.categoryId,
+        serviceItemId: item.serviceItemId,
       };
 
       const response = await apiService.createJob(jobData);

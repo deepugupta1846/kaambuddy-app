@@ -6,6 +6,7 @@ export default StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 30,
+    paddingHorizontal: 20,
   },
   statCard: {
     flex: 1,

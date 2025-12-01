@@ -35,9 +35,9 @@ const RecentJobs = ({jobs}) => {
           <View key={index} style={styles.jobItem}>
             <View style={styles.jobInfo}>
               <Text style={styles.jobTitle}>{job.title}</Text>
-              <Text style={styles.jobCustomer}>{job.customer}</Text>
-              <Text style={styles.jobTime}>{job.time}</Text>
-              <Text style={styles.jobPayment}>{job.payment}</Text>
+              <Text style={styles.jobCustomer}>{job.customer?.name}</Text>
+              <Text style={styles.jobTime}>{job.scheduledDate}</Text>
+              <Text style={styles.jobPayment}>{job.budgetMax}</Text>
             </View>
             <View style={[
               styles.jobStatus, 
